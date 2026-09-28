@@ -3,8 +3,12 @@ package com.example.ui.components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.res.painterResource
+import com.example.R
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -100,11 +104,15 @@ fun MiniPlayerBar(
                         .padding(horizontal = 14.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Left Star Badge
-                    IslamicStarBadge(
-                        number = surah.number,
-                        isActive = true,
-                        size = 38.dp
+                    // Left App Logo / Artwork
+                    Image(
+                        painter = painterResource(id = R.drawable.app_logo),
+                        contentDescription = "MP3 Quran Artwork",
+                        modifier = Modifier
+                            .size(42.dp)
+                            .clip(CircleShape)
+                            .border(1.5.dp, GoldAccent, CircleShape)
+                            .testTag("mini_player_logo")
                     )
 
                     Spacer(modifier = Modifier.width(10.dp))

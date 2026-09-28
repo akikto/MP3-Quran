@@ -8,9 +8,12 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.res.painterResource
+import com.example.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -258,13 +261,13 @@ fun FullScreenPlayerSheet(
                             )
                         )
                     )
-                    .border(2.dp, GoldAccent.copy(alpha = 0.4f), CircleShape),
+                    .border(2.5.dp, GoldAccent.copy(alpha = 0.6f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 // Rotating geometric motif
                 Canvas(
                     modifier = Modifier
-                        .size(210.dp)
+                        .size(232.dp)
                         .rotate(currentRotation)
                 ) {
                     val center = Offset(size.width / 2f, size.height / 2f)
@@ -273,43 +276,35 @@ fun FullScreenPlayerSheet(
                     // Draw Islamic 12-pointed geometric ring
                     for (i in 0 until 12) {
                         val angle = (i * 30 * PI / 180).toFloat()
-                        val starX = center.x + (radius * 0.78f) * cos(angle)
-                        val starY = center.y + (radius * 0.78f) * sin(angle)
+                        val starX = center.x + (radius * 0.92f) * cos(angle)
+                        val starY = center.y + (radius * 0.92f) * sin(angle)
                         drawCircle(
-                            color = GoldLight.copy(alpha = 0.35f),
+                            color = GoldLight.copy(alpha = 0.5f),
                             radius = 3.dp.toPx(),
                             center = Offset(starX, starY)
                         )
                     }
 
                     drawCircle(
-                        color = GoldAccent.copy(alpha = 0.25f),
-                        radius = radius * 0.85f,
-                        style = Stroke(width = 1.dp.toPx())
-                    )
-                    drawCircle(
-                        color = GoldAccent.copy(alpha = 0.15f),
-                        radius = radius * 0.65f,
-                        style = Stroke(width = 1.dp.toPx())
+                        color = GoldAccent.copy(alpha = 0.4f),
+                        radius = radius * 0.96f,
+                        style = Stroke(width = 1.5.dp.toPx())
                     )
                 }
 
-                // Center Star Badge & Surah Number
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    IslamicStarBadge(
-                        number = surah.number,
-                        isActive = true,
-                        size = 64.dp
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = "${surah.totalVerses} Ayahs",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = GoldLight,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
+                // Rotating Disc with Center MP3 Quran Logo
+                Image(
+                    painter = painterResource(id = R.drawable.app_logo),
+                    contentDescription = "MP3 Quran Player Disc",
+                    modifier = Modifier
+                        .size(200.dp)
+                        .clip(CircleShape)
+                        .rotate(currentRotation)
+                        .border(2.dp, GoldAccent.copy(alpha = 0.8f), CircleShape)
+                        .testTag("player_disc_logo")
+                )
             }
+
 
             Spacer(modifier = Modifier.height(24.dp))
 

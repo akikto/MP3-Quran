@@ -1,6 +1,7 @@
 {
-  "name": "Audio Quran",
+  "name": "MP3 Quran",
   "description": "Listen to the Holy Quran in high quality MP3 audio with world-renowned reciters, offline favorites, continuous playback, and surah search.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
+
