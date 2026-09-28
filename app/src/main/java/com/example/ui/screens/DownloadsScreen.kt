@@ -264,7 +264,8 @@ fun DownloadsScreen(
         if (downloads.isEmpty()) {
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .weight(1f)
+                    .fillMaxWidth()
                     .padding(32.dp),
                 contentAlignment = Alignment.Center
             ) {
@@ -320,9 +321,10 @@ fun DownloadsScreen(
         } else {
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .weight(1f)
+                    .fillMaxWidth()
                     .testTag("downloads_lazy_column"),
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 90.dp),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(filteredDownloads, key = { "${it.surah.number}-${it.reciter.id}" }) { item ->

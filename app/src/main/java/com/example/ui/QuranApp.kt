@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
@@ -41,7 +42,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.model.Surah
@@ -66,8 +70,8 @@ enum class NavigationTab(
     val unselectedIcon: ImageVector
 ) {
     SURAHS("Surahs", Icons.Filled.MenuBook, Icons.Outlined.MenuBook),
-    DOWNLOADS("Downloads", Icons.Filled.CloudDone, Icons.Outlined.CloudDone),
-    RECITERS("Reciters", Icons.Filled.RecordVoiceOver, Icons.Outlined.RecordVoiceOver),
+    DOWNLOADS("Offline", Icons.Filled.CloudDone, Icons.Outlined.CloudDone),
+    RECITERS("Qaris", Icons.Filled.RecordVoiceOver, Icons.Outlined.RecordVoiceOver),
     SAVED("Saved", Icons.Filled.Bookmark, Icons.Outlined.BookmarkBorder),
     PLAYLISTS("Playlists", Icons.Filled.QueueMusic, Icons.Outlined.QueueMusic)
 }
@@ -149,10 +153,23 @@ fun QuranApp(
                             icon = {
                                 Icon(
                                     imageVector = if (isSelected) tab.selectedIcon else tab.unselectedIcon,
-                                    contentDescription = tab.title
+                                    contentDescription = tab.title,
+                                    modifier = Modifier.size(22.dp)
                                 )
                             },
-                            label = { Text(tab.title) },
+                            label = {
+                                Text(
+                                    text = tab.title,
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontSize = 11.sp,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                    ),
+                                    maxLines = 1,
+                                    softWrap = false,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            },
+                            alwaysShowLabel = true,
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = MaterialTheme.colorScheme.primary,
                                 selectedTextColor = MaterialTheme.colorScheme.primary,

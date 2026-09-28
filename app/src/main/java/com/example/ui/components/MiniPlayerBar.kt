@@ -9,6 +9,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.res.painterResource
 import com.example.R
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -77,23 +78,23 @@ fun MiniPlayerBar(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 6.dp)
-                .clip(RoundedCornerShape(16.dp))
+                .padding(horizontal = 8.dp, vertical = 2.dp)
+                .clip(RoundedCornerShape(14.dp))
                 .clickable(onClick = onExpandClick)
                 .testTag("mini_player_bar"),
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(14.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant
             ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
-            Column {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 // Top Progress line
                 LinearProgressIndicator(
                     progress = { progress },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(3.dp),
+                        .height(2.5.dp),
                     color = GoldAccent,
                     trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
                 )
@@ -101,7 +102,8 @@ fun MiniPlayerBar(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 14.dp, vertical = 8.dp),
+                        .height(58.dp)
+                        .padding(horizontal = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     // Left App Logo / Artwork
@@ -109,38 +111,47 @@ fun MiniPlayerBar(
                         painter = painterResource(id = R.drawable.app_logo),
                         contentDescription = "MP3 Quran Artwork",
                         modifier = Modifier
-                            .size(42.dp)
+                            .size(36.dp)
                             .clip(CircleShape)
                             .border(1.5.dp, GoldAccent, CircleShape)
                             .testTag("mini_player_logo")
                     )
 
-                    Spacer(modifier = Modifier.width(10.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
 
                     // Title & Reciter Info
                     Column(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
                             Text(
                                 text = surah.nameEnglish,
-                                style = MaterialTheme.typography.titleMedium,
+                                style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f, fill = false)
                             )
-                            Spacer(modifier = Modifier.width(6.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 text = surah.nameArabic,
                                 fontFamily = FontFamily.Serif,
                                 color = GoldAccent,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1
                             )
                         }
 
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
                             Text(
                                 text = playerState.currentReciter.nameEnglish,
                                 style = MaterialTheme.typography.bodySmall,
@@ -167,7 +178,7 @@ fun MiniPlayerBar(
                                     Spacer(modifier = Modifier.width(2.dp))
                                     Text(
                                         text = playerState.formattedSleepTimer,
-                                        fontSize = 10.sp,
+                                        fontSize = 9.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = GoldAccent
                                     )
@@ -179,9 +190,9 @@ fun MiniPlayerBar(
                     // Audio wave indicator
                     AudioWaveIndicator(
                         isPlaying = isPlaying,
-                        modifier = Modifier.padding(horizontal = 6.dp),
+                        modifier = Modifier.padding(horizontal = 4.dp),
                         barCount = 3,
-                        maxHeight = 16.dp
+                        maxHeight = 14.dp
                     )
 
                     // Play / Pause Button
@@ -189,7 +200,7 @@ fun MiniPlayerBar(
                         shape = CircleShape,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(36.dp)
                             .clip(CircleShape)
                             .clickable(onClick = onPlayPauseClick)
                             .testTag("mini_player_play_pause")
@@ -197,7 +208,7 @@ fun MiniPlayerBar(
                         Box(contentAlignment = Alignment.Center) {
                             if (isBuffering) {
                                 CircularProgressIndicator(
-                                    modifier = Modifier.size(18.dp),
+                                    modifier = Modifier.size(16.dp),
                                     strokeWidth = 2.dp,
                                     color = GoldAccent
                                 )
@@ -206,7 +217,7 @@ fun MiniPlayerBar(
                                     imageVector = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
                                     contentDescription = if (isPlaying) "Pause" else "Play",
                                     tint = Color.White,
-                                    modifier = Modifier.size(24.dp)
+                                    modifier = Modifier.size(22.dp)
                                 )
                             }
                         }
@@ -214,22 +225,22 @@ fun MiniPlayerBar(
 
                     // Quick Speed Toggle Pill
                     if (onToggleSpeedClick != null) {
-                        Spacer(modifier = Modifier.width(6.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
                         Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                            shape = RoundedCornerShape(6.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
                             border = androidx.compose.foundation.BorderStroke(0.8.dp, GoldAccent.copy(alpha = 0.4f)),
                             modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
+                                .clip(RoundedCornerShape(6.dp))
                                 .clickable(onClick = onToggleSpeedClick)
                                 .testTag("mini_player_speed_toggle")
                         ) {
                             Text(
                                 text = "${playerState.playbackSpeed}x",
-                                fontSize = 11.sp,
+                                fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = GoldAccent,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp)
+                                modifier = Modifier.padding(horizontal = 5.dp, vertical = 3.dp)
                             )
                         }
                     }
@@ -238,14 +249,14 @@ fun MiniPlayerBar(
                     IconButton(
                         onClick = onNextClick,
                         modifier = Modifier
-                            .size(38.dp)
+                            .size(34.dp)
                             .testTag("mini_player_next")
                     ) {
                         Icon(
                             imageVector = Icons.Filled.SkipNext,
                             contentDescription = "Next Surah",
                             tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.size(26.dp)
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 }

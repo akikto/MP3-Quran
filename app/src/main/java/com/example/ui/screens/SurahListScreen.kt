@@ -87,11 +87,11 @@ fun SurahListScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // Decorative Hero Banner
+        // Decorative Hero Banner (Sleek & Compact)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
+                .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
@@ -100,7 +100,7 @@ fun SurahListScreen(
                         )
                     )
                 )
-                .padding(horizontal = 20.dp, vertical = 18.dp)
+                .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
             Column {
                 Row(
@@ -109,28 +109,29 @@ fun SurahListScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f, fill = false)
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.app_logo),
                             contentDescription = "MP3 Quran Logo",
                             modifier = Modifier
-                                .size(50.dp)
+                                .size(40.dp)
                                 .clip(CircleShape)
                                 .border(1.5.dp, GoldAccent, CircleShape)
                                 .testTag("banner_app_logo")
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(10.dp))
                         Column {
                             Text(
                                 text = "MP3 Quran",
-                                style = MaterialTheme.typography.headlineMedium,
+                                style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
                             )
                             Text(
                                 text = "114 Surahs • High Quality Audio",
-                                style = MaterialTheme.typography.bodySmall,
+                                style = MaterialTheme.typography.labelSmall,
                                 color = GoldLight
                             )
                         }
@@ -138,38 +139,35 @@ fun SurahListScreen(
 
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         // Sleep Timer Pill in Banner
-                        Surface(
-                            shape = RoundedCornerShape(20.dp),
-                            color = if (playerState.isSleepTimerActive) GoldAccent else Color.Black.copy(alpha = 0.25f),
-                            border = androidx.compose.foundation.BorderStroke(
-                                1.dp,
-                                if (playerState.isSleepTimerActive) GoldAccent else GoldAccent.copy(alpha = 0.4f)
-                            ),
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(20.dp))
-                                .clickable(onClick = onOpenSleepTimerPicker)
-                                .testTag("banner_sleep_timer_pill")
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                        if (playerState.isSleepTimerActive) {
+                            Surface(
+                                shape = RoundedCornerShape(16.dp),
+                                color = GoldAccent,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .clickable(onClick = onOpenSleepTimerPicker)
+                                    .testTag("banner_sleep_timer_pill")
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.Bedtime,
-                                    contentDescription = "Sleep Timer",
-                                    tint = if (playerState.isSleepTimerActive) Color.Black else GoldAccent,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                if (playerState.isSleepTimerActive) {
-                                    Spacer(modifier = Modifier.width(4.dp))
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Bedtime,
+                                        contentDescription = "Sleep Timer",
+                                        tint = Color.Black,
+                                        modifier = Modifier.size(13.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(3.dp))
                                     Text(
                                         text = playerState.formattedSleepTimer,
                                         color = Color.Black,
                                         style = MaterialTheme.typography.labelSmall,
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 10.sp
                                     )
                                 }
                             }
@@ -177,44 +175,45 @@ fun SurahListScreen(
 
                         // Reciter Quick Switch Pill
                         Surface(
-                            shape = RoundedCornerShape(20.dp),
-                            color = Color.Black.copy(alpha = 0.25f),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, GoldAccent.copy(alpha = 0.5f)),
+                            shape = RoundedCornerShape(16.dp),
+                            color = Color.Black.copy(alpha = 0.30f),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, GoldAccent.copy(alpha = 0.6f)),
                             modifier = Modifier
-                                .clip(RoundedCornerShape(20.dp))
+                                .clip(RoundedCornerShape(16.dp))
                                 .clickable(onClick = onOpenReciterPicker)
                                 .testTag("hero_reciter_pill")
                         ) {
                             Row(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.RecordVoiceOver,
                                     contentDescription = "Reciter",
                                     tint = GoldAccent,
-                                    modifier = Modifier.size(16.dp)
+                                    modifier = Modifier.size(14.dp)
                                 )
-                                Spacer(modifier = Modifier.width(6.dp))
+                                Spacer(modifier = Modifier.width(5.dp))
                                 Text(
                                     text = playerState.currentReciter.nameEnglish.split(" ").lastOrNull()
                                         ?: playerState.currentReciter.nameEnglish,
                                     color = Color.White,
                                     style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.SemiBold
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 11.sp
                                 )
                             }
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Bismillah Calligraphy Banner
                 Text(
                     text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
                     fontFamily = FontFamily.Serif,
-                    fontSize = 20.sp,
+                    fontSize = 16.sp,
                     color = GoldLight,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
@@ -222,16 +221,17 @@ fun SurahListScreen(
             }
         }
 
-        // Search Input
+        // Search Input (Sleek & Clean)
         OutlinedTextField(
             value = searchQuery,
             onValueChange = onSearchQueryChanged,
-            placeholder = { Text("Search by Surah name, number, or Arabic...") },
+            placeholder = { Text("Search Surah by name or number...", fontSize = 13.sp) },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = "Search",
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
                 )
             },
             trailingIcon = {
@@ -240,30 +240,31 @@ fun SurahListScreen(
                         Icon(
                             imageVector = Icons.Default.Clear,
                             contentDescription = "Clear",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(18.dp)
                         )
                     }
                 }
             },
             singleLine = true,
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(14.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f),
+                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
                 focusedContainerColor = MaterialTheme.colorScheme.surface,
                 unfocusedContainerColor = MaterialTheme.colorScheme.surface
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 10.dp)
+                .padding(horizontal = 14.dp, vertical = 6.dp)
                 .testTag("surah_search_input")
         )
 
         // Filter Chips Row
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            contentPadding = PaddingValues(horizontal = 14.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             items(SurahFilter.values()) { filter ->
                 val isSelected = filter == selectedFilter
@@ -273,7 +274,8 @@ fun SurahListScreen(
                     label = {
                         Text(
                             text = filter.label,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                            fontSize = 12.sp
                         )
                     },
                     colors = FilterChipDefaults.filterChipColors(
@@ -285,13 +287,14 @@ fun SurahListScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
 
         // Surah List
         if (surahs.isEmpty()) {
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .weight(1f)
+                    .fillMaxWidth()
                     .padding(32.dp),
                 contentAlignment = Alignment.Center
             ) {
@@ -305,9 +308,10 @@ fun SurahListScreen(
         } else {
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .weight(1f)
+                    .fillMaxWidth()
                     .testTag("surahs_lazy_column"),
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 90.dp),
+                contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 4.dp, bottom = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(surahs, key = { it.number }) { surah ->

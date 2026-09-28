@@ -96,9 +96,10 @@ fun RecitersScreen(
 
         LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
+                .weight(1f)
+                .fillMaxWidth()
                 .testTag("reciters_list"),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 90.dp),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(Reciter.ALL_RECITERS, key = { it.id }) { reciter ->

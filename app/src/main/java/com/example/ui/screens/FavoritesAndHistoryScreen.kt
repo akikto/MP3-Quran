@@ -179,7 +179,8 @@ fun FavoritesAndHistoryScreen(
                 if (favorites.isEmpty()) {
                     Box(
                         modifier = Modifier
-                            .fillMaxSize()
+                            .weight(1f)
+                            .fillMaxWidth()
                             .padding(32.dp),
                         contentAlignment = Alignment.Center
                     ) {
@@ -207,9 +208,10 @@ fun FavoritesAndHistoryScreen(
                 } else {
                     LazyColumn(
                         modifier = Modifier
-                            .fillMaxSize()
+                            .weight(1f)
+                            .fillMaxWidth()
                             .testTag("favorites_list"),
-                        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 90.dp),
+                        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(favorites, key = { it.number }) { surah ->
@@ -322,7 +324,8 @@ fun FavoritesAndHistoryScreen(
                     if (bookmarkedAyahs.isEmpty()) {
                         Box(
                             modifier = Modifier
-                                .fillMaxSize()
+                                .weight(1f)
+                                .fillMaxWidth()
                                 .padding(32.dp),
                             contentAlignment = Alignment.Center
                         ) {
@@ -350,9 +353,10 @@ fun FavoritesAndHistoryScreen(
                     } else {
                         LazyColumn(
                             modifier = Modifier
-                                .fillMaxSize()
+                                .weight(1f)
+                                .fillMaxWidth()
                                 .testTag("bookmarked_ayahs_list"),
-                            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 90.dp),
+                            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             items(bookmarkedAyahs, key = { it.id }) { bookmark ->
@@ -474,7 +478,8 @@ fun FavoritesAndHistoryScreen(
                 if (history.isEmpty()) {
                     Box(
                         modifier = Modifier
-                            .fillMaxSize()
+                            .weight(1f)
+                            .fillMaxWidth()
                             .padding(32.dp),
                         contentAlignment = Alignment.Center
                     ) {
@@ -500,7 +505,11 @@ fun FavoritesAndHistoryScreen(
                         }
                     }
                 } else {
-                    Column(modifier = Modifier.fillMaxSize()) {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                    ) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -529,9 +538,10 @@ fun FavoritesAndHistoryScreen(
 
                         LazyColumn(
                             modifier = Modifier
-                                .fillMaxSize()
+                                .weight(1f)
+                                .fillMaxWidth()
                                 .testTag("history_list"),
-                            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 90.dp),
+                            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             items(history, key = { "${it.surah.number}_${it.playedAt}" }) { item ->
