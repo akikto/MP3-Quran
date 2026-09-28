@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Headphones arc -->
+    <path
+        android:strokeColor="#FFD54F"
+        android:strokeWidth="3.5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M34,56 C34,42 43,31 54,31 C65,31 74,42 74,56" />
+    <!-- Headphone ear cups -->
+    <path
+        android:fillColor="#FFD54F"
+        android:pathData="M31,52 C31,50.3 32.3,49 34,49 L37,49 C38.7,49 40,50.3 40,52 L40,63 C40,64.7 38.7,66 37,66 L34,66 C32.3,66 31,64.7 31,63 Z" />
+    <path
+        android:fillColor="#FFD54F"
+        android:pathData="M68,52 C68,50.3 69.3,49 71,49 L74,49 C75.7,49 77,50.3 77,52 L77,63 C77,64.7 75.7,66 74,66 L71,66 C69.3,66 68,64.7 68,63 Z" />
+    <!-- Open Book Left Page -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M52.5,48 C46,47 39,49 37,51 L37,73 C39,71 46,69 52.5,70 Z" />
+    <!-- Open Book Right Page -->
+    <path
+        android:fillColor="#F0F4F2"
+        android:pathData="M55.5,48 C62,47 69,49 71,51 L71,73 C69,71 62,69 55.5,70 Z" />
+    <!-- Quran Book Spine / Center Bookmark Ribbon -->
+    <path
+        android:fillColor="#FFD54F"
+        android:pathData="M53,47.5 L55,47.5 L55,75 L54,73.5 L53,75 Z" />
+    <!-- Book lines on left page -->
+    <path
+        android:strokeColor="#2E7D32"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round"
+        android:pathData="M41,56 L49,54 M41,60 L49,58 M41,64 L48,62" />
+    <!-- Book lines on right page -->
+    <path
+        android:strokeColor="#2E7D32"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round"
+        android:pathData="M59,54 L67,56 M59,58 L67,60 M60,62 L67,64" />
+    <!-- Wooden Stand / Rehal Base -->
+    <path
+        android:fillColor="#FFB300"
+        android:pathData="M44,72 L40,78 L43,78 L46,73 Z M64,72 L68,78 L65,78 L62,73 Z" />
+</vector>
