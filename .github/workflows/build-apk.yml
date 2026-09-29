@@ -29,16 +29,12 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Prepare build environment (Keystore & Configs)
+      - name: Prepare debug build environment
         run: |
           touch .env
           if [ ! -f debug.keystore ]; then
             echo "Generating debug.keystore for CI signing..."
             keytool -genkey -v -keystore debug.keystore -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=Android Debug,O=Android,C=US"
-          fi
-          if [ ! -f app/google-services.json ]; then
-            echo "Creating fallback google-services.json..."
-            echo '{"project_info":{"project_number":"123456789","project_id":"mp3-quran","storage_bucket":"mp3-quran.appspot.com"},"client":[{"client_info":{"mobilesdk_app_id":"1:123456789:android:abcdef","android_client_info":{"package_name":"com.aistudio.audioquran.mpquran"}},"oauth_client":[],"api_key":[{"current_key":"dummy"}],"services":{}}],"configuration_version":"1"}' > app/google-services.json
           fi
 
       - name: Build Debug APK
