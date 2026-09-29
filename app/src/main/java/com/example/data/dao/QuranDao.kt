@@ -25,6 +25,9 @@ interface QuranDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun importFavorite(favorite: FavoriteSurahEntity): Long
 
+    @Query("UPDATE favorites SET addedAt = :addedAt, isStarter = 0 WHERE surahNumber = :surahNumber AND isStarter = 1")
+    suspend fun replaceStarterFavorite(surahNumber: Int, addedAt: Long)
+
     @Query("SELECT EXISTS(SELECT 1 FROM favorites WHERE surahNumber = :surahNumber)")
     fun isFavorite(surahNumber: Int): Flow<Boolean>
 

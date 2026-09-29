@@ -52,11 +52,12 @@ class AppDatabaseMigrationTest {
 
         // Open through Room so its schema validation and the production migration both run.
         val db = Room.databaseBuilder(context, AppDatabase::class.java, name)
-            .addMigrations(AppDatabase.MIGRATION_2_3)
+            .addMigrations(AppDatabase.MIGRATION_2_3, AppDatabase.MIGRATION_3_4)
             .build()
         try {
             val dao = db.quranDao()
             assertEquals(100L, dao.getAllFavorites().first().single().addedAt)
+            assertEquals(false, dao.getAllFavorites().first().single().isStarter)
             assertEquals(1234L, dao.getHistoryForSurah(18)?.lastPositionMs)
             assertEquals("My playlist", dao.getAllPlaylists().first().single().name)
             assertEquals("Personal notes", dao.getAllPlaylists().first().single().description)
@@ -75,7 +76,7 @@ class AppDatabaseMigrationTest {
         }
         // Reopening the upgraded database should keep both the old records and new bookmarks.
         val reopened = Room.databaseBuilder(context, AppDatabase::class.java, name)
-            .addMigrations(AppDatabase.MIGRATION_2_3)
+            .addMigrations(AppDatabase.MIGRATION_2_3, AppDatabase.MIGRATION_3_4)
             .build()
         try {
             assertEquals(42L, reopened.quranDao().getAllPlaylists().first().single().id)
@@ -97,7 +98,7 @@ class AppDatabaseMigrationTest {
         }
 
         val db = Room.databaseBuilder(context, AppDatabase::class.java, name)
-            .addMigrations(AppDatabase.MIGRATION_2_3)
+            .addMigrations(AppDatabase.MIGRATION_2_3, AppDatabase.MIGRATION_3_4)
             .allowMainThreadQueries()
             .build()
         try {

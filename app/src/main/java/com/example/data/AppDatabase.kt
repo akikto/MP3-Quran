@@ -23,7 +23,7 @@ import com.example.data.entity.PlaylistItemEntity
         DownloadedSurahEntity::class,
         BookmarkedAyahEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -67,7 +67,7 @@ abstract class AppDatabase : RoomDatabase() {
                 }
                 listOf(1, 18, 55, 67).forEach { surah ->
                     db.execSQL(
-                        "INSERT OR IGNORE INTO favorites (surahNumber, addedAt) VALUES (?, ?)",
+                        "INSERT OR IGNORE INTO favorites (surahNumber, addedAt, isStarter) VALUES (?, ?, 1)",
                         arrayOf<Any>(surah, now)
                     )
                 }
@@ -104,6 +104,13 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // Existing favorites predate starter provenance; assume they belong to the user.
+        internal val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE favorites ADD COLUMN isStarter INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
@@ -113,7 +120,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "quran_audio_database.db"
-                ).addMigrations(MIGRATION_2_3)
+                ).addMigrations(MIGRATION_2_3, MIGRATION_3_4)
                 .addCallback(STARTER_COLLECTIONS_CALLBACK).build()
                 INSTANCE = instance
                 instance

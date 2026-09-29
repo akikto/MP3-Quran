@@ -1,12 +1,14 @@
 package com.example.data.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "favorites")
 data class FavoriteSurahEntity(
     @PrimaryKey val surahNumber: Int,
-    val addedAt: Long = System.currentTimeMillis()
+    val addedAt: Long = System.currentTimeMillis(),
+    @ColumnInfo(defaultValue = "0") val isStarter: Boolean = false
 )
 
 @Entity(tableName = "play_history")

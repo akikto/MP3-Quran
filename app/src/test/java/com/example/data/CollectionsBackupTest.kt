@@ -44,7 +44,14 @@ class CollectionsBackupTest {
         val dao = db.quranDao()
         assertEquals(4, dao.snapshotFavorites().count { it.surahNumber in listOf(1, 18, 55, 67) })
         assertEquals(1, dao.snapshotFavorites().count { it.surahNumber == 18 })
+        assertEquals(123L, dao.snapshotFavorites().single { it.surahNumber == 18 }.addedAt)
+        assertEquals(false, dao.snapshotFavorites().single { it.surahNumber == 18 }.isStarter)
+        assertEquals(true, dao.snapshotFavorites().single { it.surahNumber == 1 }.isStarter)
         assertEquals(456L, dao.snapshotFavorites().single { it.surahNumber == 42 }.addedAt)
+        // Once imported, the favorite is personal and a later restore must keep local changes.
+        dao.addFavorite(FavoriteSurahEntity(18, 555))
+        CollectionsBackup(db).import(ByteArrayInputStream(json.toByteArray()))
+        assertEquals(555L, dao.snapshotFavorites().single { it.surahNumber == 18 }.addedAt)
         assertEquals(4, dao.snapshotBookmarks().size)
         assertEquals("Saved", dao.snapshotBookmarks().single { it.surahNumber == 18 }.note)
         val custom = dao.snapshotCustomPlaylists().single()
@@ -61,7 +68,7 @@ class CollectionsBackupTest {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 db.execSQL("INSERT INTO playlists VALUES (1, 'Mine', 'Keep', 0, 101)")
                 db.execSQL("INSERT INTO playlist_items VALUES (1, 42, 0)")
-                db.execSQL("INSERT INTO favorites VALUES (18, 222)")
+                db.execSQL("INSERT INTO favorites (surahNumber, addedAt) VALUES (18, 222)")
                 db.execSQL("INSERT INTO bookmarked_ayahs VALUES (1, 2, 255, 'My note', 99, 333)")
             }
         })
@@ -69,8 +76,19 @@ class CollectionsBackupTest {
         assertEquals("Mine", dao.snapshotCustomPlaylists().single().name)
         assertEquals(listOf(42), dao.snapshotPlaylistItems(1).map { it.surahNumber })
         assertEquals(222L, dao.snapshotFavorites().single { it.surahNumber == 18 }.addedAt)
+        assertEquals(false, dao.snapshotFavorites().single { it.surahNumber == 18 }.isStarter)
         assertEquals("My note", dao.snapshotBookmarks().single { it.ayahNumber == 255 }.note)
         assertEquals(3, dao.snapshotBookmarks().size)
+    }
+
+    @Test fun userSetStarterFavoriteKeepsItsDateOnRestore() = runBlocking {
+        val db = freshDatabase()
+        val dao = db.quranDao()
+        dao.addFavorite(FavoriteSurahEntity(18, 222))
+        val json = """{"version":1,"favorites":[{"surahNumber":18,"addedAt":123}],"bookmarks":[],"playlists":[]}"""
+        CollectionsBackup(db).import(ByteArrayInputStream(json.toByteArray()))
+        assertEquals(222L, dao.snapshotFavorites().single { it.surahNumber == 18 }.addedAt)
+        assertEquals(false, dao.snapshotFavorites().single { it.surahNumber == 18 }.isStarter)
     }
 
     @Test fun roundTripPreservesCollectionsAndRepeatedImportDoesNotDuplicate() = runBlocking {

@@ -91,9 +91,14 @@ class CollectionsBackup(private val database: AppDatabase) {
             BackupPlaylist(name, description, createdAt, items)
         }
         database.withTransaction {
-            val existingFavorites = dao.snapshotFavorites().map { it.surahNumber }.toSet()
-            favorites.filter { it.surahNumber !in existingFavorites }
-                .distinctBy { it.surahNumber }.forEach { dao.importFavorite(it) }
+            val existingFavorites = dao.snapshotFavorites().associateBy { it.surahNumber }
+            favorites.distinctBy { it.surahNumber }.forEach { favorite ->
+                when (existingFavorites[favorite.surahNumber]?.isStarter) {
+                    true -> dao.replaceStarterFavorite(favorite.surahNumber, favorite.addedAt)
+                    null -> dao.importFavorite(favorite)
+                    false -> Unit // A user-set favorite wins over the backup.
+                }
+            }
 
             val existingBookmarks = dao.snapshotBookmarks().map { it.identity() }.toMutableSet()
             bookmarks.forEach { bookmark ->

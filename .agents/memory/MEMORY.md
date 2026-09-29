@@ -2,3 +2,4 @@
 - [APK delivery confirmation](apk-delivery-confirmation.md) — direct APK download was confirmed; do not treat that as approval of the unresolved homepage appearance.
 - [Android picker instrumentation](android-picker-tests.md) — destructive restore checks require a disposable emulator; avoid self-clearing the instrumented package.
 - [GitHub connector sync](github-connector-sync.md) — API authorization does not fix Git CLI credentials; compare Git trees when syncing through the connector.
+- [Legacy favorite provenance](legacy-favorite-provenance.md) — old database favorites have no origin marker; protect their dates rather than guessing which were starters.
