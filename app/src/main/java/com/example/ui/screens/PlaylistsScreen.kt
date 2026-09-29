@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.QueueMusic
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -36,6 +37,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +55,7 @@ import com.example.model.Surah
 import com.example.ui.components.AddToPlaylistDialog
 import com.example.ui.theme.EmeraldPrimary
 import com.example.ui.theme.GoldAccent
+import kotlinx.coroutines.flow.Flow
 
 @Composable
 fun PlaylistsScreen(
@@ -60,6 +63,9 @@ fun PlaylistsScreen(
     onCreatePlaylist: (String, String) -> Unit,
     onDeletePlaylist: (Long) -> Unit,
     onPlayPresetList: (List<Int>) -> Unit,
+    getPlaylistItems: (Long) -> Flow<List<Surah>>,
+    onExport: () -> Unit,
+    onImport: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showCreateDialog by remember { mutableStateOf(false) }
@@ -86,6 +92,20 @@ fun PlaylistsScreen(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Save a backup before reinstalling. Import adds missing saved items without replacing your current ones. The JSON file contains readable personal notes; keep it private.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(onClick = onExport, modifier = Modifier.testTag("export_collections")) {
+                        Text("Export saved")
+                    }
+                    OutlinedButton(onClick = onImport, modifier = Modifier.testTag("import_collections")) {
+                        Text("Import saved")
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -99,12 +119,10 @@ fun PlaylistsScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(playlists, key = { it.id }) { playlist ->
-                    val surahNumbers = when (playlist.id) {
-                        1L -> listOf(18, 62) // Friday
-                        2L -> listOf(36, 55, 56, 67) // Serenity & Mercy
-                        3L -> listOf(1, 108, 109, 110, 111, 112, 113, 114) // Protection
-                        else -> emptyList()
-                    }
+                    val playlistSurahs by remember(playlist.id) {
+                        getPlaylistItems(playlist.id)
+                    }.collectAsState(initial = emptyList())
+                    val surahNumbers = playlistSurahs.map { it.number }
 
                     Card(
                         modifier = Modifier

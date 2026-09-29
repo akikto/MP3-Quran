@@ -35,6 +35,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,6 +64,7 @@ import com.example.ui.screens.RecitersScreen
 import com.example.ui.screens.SurahListScreen
 import com.example.ui.theme.GoldAccent
 import com.example.ui.viewmodel.QuranViewModel
+import kotlinx.coroutines.launch
 
 enum class NavigationTab(
     val title: String,
@@ -100,6 +102,21 @@ fun QuranApp(
     val surahForPlaylist by viewModel.showPlaylistDialog.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val exportLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        if (uri != null) viewModel.exportCollections(uri) { message ->
+            scope.launch { snackbarHostState.showSnackbar(message) }
+        }
+    }
+    val importLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri != null) viewModel.importCollections(uri) { message ->
+            scope.launch { snackbarHostState.showSnackbar(message) }
+        }
+    }
     var currentTab by remember { mutableStateOf(NavigationTab.SURAHS) }
 
     // Request notification permission on Android 13+
@@ -300,6 +317,9 @@ fun QuranApp(
                         onDeletePlaylist = { id ->
                             viewModel.deletePlaylist(id)
                         },
+                        getPlaylistItems = { viewModel.getPlaylistItems(it) },
+                        onExport = { exportLauncher.launch("quran-collections.json") },
+                        onImport = { importLauncher.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) },
                         onPlayPresetList = { surahNumbers ->
                             val playlistSurahs = surahNumbers.mapNotNull { Surah.getByNumber(it) }
                             if (playlistSurahs.isNotEmpty()) {

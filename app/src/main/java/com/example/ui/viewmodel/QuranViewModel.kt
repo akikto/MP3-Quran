@@ -1,9 +1,11 @@
 package com.example.ui.viewmodel
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.AppDatabase
+import com.example.data.CollectionsBackup
 import com.example.data.DownloadedSurahItem
 import com.example.data.HistoryItem
 import com.example.data.QuranRepository
@@ -22,6 +24,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 enum class SurahFilter(val label: String) {
     ALL("All 114"),
@@ -35,6 +39,7 @@ class QuranViewModel(application: Application) : AndroidViewModel(application) {
 
     private val database = AppDatabase.getInstance(application)
     private val repository = QuranRepository(database.quranDao(), application)
+    private val collectionsBackup = CollectionsBackup(database)
     private val playerManager = AudioPlayerManager.getInstance(application)
 
     val playerState: StateFlow<PlayerState> = playerManager.playerState
@@ -266,8 +271,38 @@ class QuranViewModel(application: Application) : AndroidViewModel(application) {
 
     fun addSurahToPlaylist(playlistId: Long, surahNumber: Int) {
         viewModelScope.launch {
-            repository.addSurahToPlaylist(playlistId, surahNumber, 0)
+            repository.addSurahToPlaylist(playlistId, surahNumber)
             _showPlaylistDialog.value = null
+        }
+    }
+
+    fun getPlaylistItems(playlistId: Long) = repository.getSurahsForPlaylist(playlistId)
+
+    fun exportCollections(uri: Uri, onResult: (String) -> Unit) {
+        viewModelScope.launch {
+            val result = runCatching {
+                withContext(Dispatchers.IO) {
+                    getApplication<Application>().contentResolver.openOutputStream(uri)?.use {
+                        collectionsBackup.export(it)
+                    } ?: error("Cannot open destination file")
+                }
+                "Collections exported. Keep the file somewhere safe for reinstalling."
+            }.getOrElse { "Export failed: ${it.message ?: "Could not write file"}" }
+            onResult(result)
+        }
+    }
+
+    fun importCollections(uri: Uri, onResult: (String) -> Unit) {
+        viewModelScope.launch {
+            val result = runCatching {
+                withContext(Dispatchers.IO) {
+                    getApplication<Application>().contentResolver.openInputStream(uri)?.use {
+                        collectionsBackup.import(it)
+                    } ?: error("Cannot open backup file")
+                }
+                "Collections restored. Existing saved items were kept."
+            }.getOrElse { "Import failed: ${it.message ?: "Could not read file"}" }
+            onResult(result)
         }
     }
 

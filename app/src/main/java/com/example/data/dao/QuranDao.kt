@@ -19,6 +19,12 @@ interface QuranDao {
     @Query("SELECT * FROM favorites ORDER BY addedAt DESC")
     fun getAllFavorites(): Flow<List<FavoriteSurahEntity>>
 
+    @Query("SELECT * FROM favorites")
+    suspend fun snapshotFavorites(): List<FavoriteSurahEntity>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun importFavorite(favorite: FavoriteSurahEntity): Long
+
     @Query("SELECT EXISTS(SELECT 1 FROM favorites WHERE surahNumber = :surahNumber)")
     fun isFavorite(surahNumber: Int): Flow<Boolean>
 
@@ -44,6 +50,18 @@ interface QuranDao {
     // Playlists
     @Query("SELECT * FROM playlists ORDER BY isSystemPreset DESC, createdAt ASC")
     fun getAllPlaylists(): Flow<List<PlaylistEntity>>
+
+    @Query("SELECT * FROM playlists WHERE isSystemPreset = 0")
+    suspend fun snapshotCustomPlaylists(): List<PlaylistEntity>
+
+    @Query("SELECT * FROM playlist_items WHERE playlistId = :playlistId ORDER BY orderIndex ASC, surahNumber ASC")
+    suspend fun snapshotPlaylistItems(playlistId: Long): List<PlaylistItemEntity>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun importPlaylist(playlist: PlaylistEntity): Long
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun importPlaylistItem(item: PlaylistItemEntity): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPlaylist(playlist: PlaylistEntity): Long
@@ -85,6 +103,12 @@ interface QuranDao {
     // Ayah Bookmarks
     @Query("SELECT * FROM bookmarked_ayahs ORDER BY bookmarkedAt DESC")
     fun getAllBookmarkedAyahs(): Flow<List<BookmarkedAyahEntity>>
+
+    @Query("SELECT * FROM bookmarked_ayahs")
+    suspend fun snapshotBookmarks(): List<BookmarkedAyahEntity>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun importBookmark(bookmark: BookmarkedAyahEntity): Long
 
     @Query("SELECT EXISTS(SELECT 1 FROM bookmarked_ayahs WHERE surahNumber = :surahNumber AND ayahNumber = :ayahNumber)")
     fun isAyahBookmarked(surahNumber: Int, ayahNumber: Int): Flow<Boolean>
