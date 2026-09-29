@@ -133,12 +133,14 @@ class QuranRepository(
         dao.deletePlaylist(playlistId)
     }
 
-    suspend fun addSurahToPlaylist(playlistId: Long, surahNumber: Int, currentCount: Int) {
+    suspend fun addSurahToPlaylist(playlistId: Long, surahNumber: Int) {
+        val items = dao.snapshotPlaylistItems(playlistId)
+        if (items.any { it.surahNumber == surahNumber }) return
         dao.insertPlaylistItem(
             PlaylistItemEntity(
                 playlistId = playlistId,
                 surahNumber = surahNumber,
-                orderIndex = currentCount
+                orderIndex = (items.maxOfOrNull { it.orderIndex } ?: -1) + 1
             )
         )
     }

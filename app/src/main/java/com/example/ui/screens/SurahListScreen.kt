@@ -137,7 +137,9 @@ fun SurahListScreen(
                                 text = "114 Surahs • High Quality Audio",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = GoldLight,
-                                fontSize = 10.sp
+                                fontSize = 10.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }

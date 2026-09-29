@@ -34,7 +34,9 @@ fun AudioWaveIndicator(
     color: Color = GoldAccent
 ) {
     Row(
-        modifier = modifier,
+        // Keep the visualizer's measured height fixed so its animation cannot
+        // push the slider and controls below it up and down.
+        modifier = modifier.height(maxHeight),
         horizontalArrangement = Arrangement.spacedBy(2.dp),
         verticalAlignment = Alignment.Bottom
     ) {

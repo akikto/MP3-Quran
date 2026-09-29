@@ -1,0 +1,44 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "_SC0sEjh-JtEQiYs90khw"
+uri = "file://attached_assets/Screenshot_2026-09-29-07-44-36-91_40deb401b9ffe8e1df2f1cc5ba48_1790652389602.jpg"
+type = "image"
+title = "MP3 Quran হোমপেজের স্ক্রিনশট"
+description = "প্রজেক্টে থাকা Android স্ক্রিনশট; নতুন করে emulator-এ তোলা নয়।"
+logical_id = "d9a54281-574a-4d5f-aaa2-da4f094af26c"
+content_hash = "sha256:ae92685b84a9abf945e984149ff8b9a36e688a5169d612d5ae1314ee89382ddb"
+size = 533707
+mtime_ms = 1790652393294
+storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:6b572d62-f8a5-444e-91c5-6f7a8897776e/d9a54281-574a-4d5f-aaa2-da4f094af26c/a94430b6-50b5-427d-b251-684e895873c4"
+storage_version_token = "1790652581284446"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "pglDE1RlRc18Q1gwwUJ8v"
+uri = "file://app/build/outputs/apk/debug/app-debug.apk"
+type = "unspecified"
+title = "MP3 Quran Preview — Android APK"
+description = "সর্বশেষ বিল্ডের আলাদা Preview অ্যাপ (প্রায় ১৯ MB)। পুরোনো MP3 Quran অ্যাপ না মুছেই ইনস্টল করা যাবে।"
+logical_id = "06177bf0-06b8-49b1-aec0-2e31d4367748"
+content_hash = "sha256:24ef81f27f7fde78a4a126c9fae77de8d12a7e15ce58cc1c0ae128615b932680"
+size = 19569032
+mtime_ms = 1790658113062
+storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:6b572d62-f8a5-444e-91c5-6f7a8897776e/06177bf0-06b8-49b1-aec0-2e31d4367748/3224c7c7-578c-4469-ba4f-1b3bb77f147d"
+storage_version_token = "1790658827880031"
+content_type = "application/octet-stream"
+
+[[outputs]]
+id = "fGFSGo6ys_cIYrgdCImjo"
+uri = "file://app/build/outputs/apk/debug/MP3-Quran-Preview.apk"
+type = "unspecified"
+title = "MP3-Quran-Preview.apk"
+description = "Android ইনস্টলেশন ফাইল (১৯ MB)। ডাউনলোড করে .apk ফাইলটি সরাসরি খুলুন; Extract/Unzip করবেন না।"
+logical_id = "78433194-17df-4b75-b459-8e9b6c58feb4"
+content_hash = "sha256:24ef81f27f7fde78a4a126c9fae77de8d12a7e15ce58cc1c0ae128615b932680"
+size = 19569032
+mtime_ms = 1790658981434
+storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:6b572d62-f8a5-444e-91c5-6f7a8897776e/78433194-17df-4b75-b459-8e9b6c58feb4/904a8cf5-c279-43a1-8f9d-90ccb117a839"
+storage_version_token = "1790658991341787"
+content_type = "application/octet-stream"

@@ -73,6 +73,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -118,6 +119,7 @@ fun FullScreenPlayerSheet(
 ) {
     val surah = playerState.currentSurah ?: return
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val speedLabelFontSize = (12f * minOf(1f, 1.15f / LocalDensity.current.fontScale)).sp
 
     BackHandler {
         onDismiss()
@@ -640,14 +642,17 @@ fun FullScreenPlayerSheet(
                                     .testTag("speed_toggle_${speed}x")
                             ) {
                                 Box(
-                                    modifier = Modifier.padding(vertical = 8.dp),
+                                    modifier = Modifier.height(40.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
                                         text = if (speed == 1.0f) "1x" else "${speed}x",
-                                        fontSize = 13.sp,
+                                        fontSize = speedLabelFontSize,
                                         fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Medium,
-                                        color = if (isSelected) Color.Black else Color.White
+                                        color = if (isSelected) Color.Black else Color.White,
+                                        maxLines = 1,
+                                        softWrap = false,
+                                        overflow = TextOverflow.Clip
                                     )
                                 }
                             }

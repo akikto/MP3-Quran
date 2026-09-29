@@ -1,6 +1,5 @@
 package com.example.ui.components
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -37,6 +37,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -66,6 +68,8 @@ fun SurahCard(
     val isPlaying = isCurrentSurah && playerStatus == PlayerStatus.PLAYING
     val isBuffering = isCurrentSurah && playerStatus == PlayerStatus.BUFFERING
     val isDownloading = downloadProgress != null && downloadProgress in 0..99
+    val compactScreen = LocalConfiguration.current.screenWidthDp < 400
+    val enlargedText = LocalDensity.current.fontScale > 1.2f
 
     val containerColor = if (isCurrentSurah) {
         MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.22f)
@@ -90,20 +94,23 @@ fun SurahCard(
         border = borderStroke,
         elevation = CardDefaults.cardElevation(defaultElevation = if (isCurrentSurah) 2.dp else 0.5.dp)
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(horizontal = 10.dp, vertical = 5.dp)
         ) {
-            // Compact Star badge with Surah Number
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+          ) {
+            // Star badge
             IslamicStarBadge(
                 number = surah.number,
                 isActive = isCurrentSurah,
                 size = 36.dp
             )
 
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
             // Surah English Details
             Column(
@@ -118,13 +125,14 @@ fun SurahCard(
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = if (isCurrentSurah) GoldAccent else MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.weight(1f),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         fontSize = 14.sp
                     )
 
-                    // Compact Revelation tag badge
-                    Surface(
+                    // Revelation tag badge
+                    if (!enlargedText) Surface(
                         shape = RoundedCornerShape(3.dp),
                         color = if (surah.revelationType == Surah.RevelationType.MECCAN) {
                             MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
@@ -141,12 +149,14 @@ fun SurahCard(
                                 GoldAccent
                             },
                             modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp),
-                            fontSize = 9.sp
+                            fontSize = 9.sp,
+                            maxLines = 1,
+                            softWrap = false
                         )
                     }
 
                     // Downloaded offline badge
-                    if (isDownloaded) {
+                    if (isDownloaded && !compactScreen && !enlargedText) {
                         Surface(
                             shape = RoundedCornerShape(3.dp),
                             color = EmeraldPrimary.copy(alpha = 0.15f)
@@ -174,46 +184,67 @@ fun SurahCard(
                     }
                 }
 
+            }
+
+            Text(
+                text = surah.nameArabic,
+                style = MaterialTheme.typography.titleLarge,
+                fontFamily = FontFamily.Serif,
+                fontWeight = FontWeight.Bold,
+                color = if (isCurrentSurah) GoldAccent else MaterialTheme.colorScheme.onSurface,
+                fontSize = 18.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .padding(start = 5.dp, end = 4.dp)
+                    .widthIn(max = 84.dp)
+            )
+
+            // Keep the primary action in the title row so cards stay compact.
+            Surface(
+                shape = CircleShape,
+                color = if (isCurrentSurah) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                modifier = Modifier
+                    .size(34.dp)
+                    .clip(CircleShape)
+                    .clickable(onClick = onPlayClick)
+                    .testTag("play_button_${surah.number}")
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    if (isBuffering) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp,
+                            color = GoldAccent
+                        )
+                    } else {
+                        Icon(
+                            imageVector = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+                            contentDescription = if (isPlaying) "Pause" else "Play",
+                            tint = if (isCurrentSurah) Color.White else MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+            }
+          }
+
+            // Translation and secondary actions share the second line.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Spacer(modifier = Modifier.width(44.dp))
                 Text(
                     text = "${surah.englishTranslation} • ${surah.totalVerses} Verses",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
                     fontSize = 11.sp
                 )
-            }
-
-            // Arabic Name & Audio Wave (Compact)
-            Column(
-                horizontalAlignment = Alignment.End,
-                modifier = Modifier.padding(horizontal = 6.dp)
-            ) {
-                Text(
-                    text = surah.nameArabic,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontFamily = FontFamily.Serif,
-                    fontWeight = FontWeight.Bold,
-                    color = if (isCurrentSurah) GoldAccent else MaterialTheme.colorScheme.onSurface,
-                    fontSize = 17.sp
-                )
-
-                if (isCurrentSurah) {
-                    AudioWaveIndicator(
-                        isPlaying = isPlaying,
-                        modifier = Modifier.padding(top = 1.dp),
-                        barCount = 3,
-                        color = GoldAccent
-                    )
-                }
-            }
-
-            // Compact Action Buttons: Download, Add to playlist, Favorite, Play/Pause
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(1.dp)
-            ) {
-                // Download button
+                // Download button or indicator
                 if (onDownloadClick != null) {
                     IconButton(
                         onClick = onDownloadClick,
@@ -278,35 +309,6 @@ fun SurahCard(
                     )
                 }
 
-                Spacer(modifier = Modifier.width(2.dp))
-
-                // Play / Pause Circle (Compact & Elegant)
-                Surface(
-                    shape = CircleShape,
-                    color = if (isCurrentSurah) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
-                        .clickable(onClick = onPlayClick)
-                        .testTag("play_button_${surah.number}")
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        if (isBuffering) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(16.dp),
-                                strokeWidth = 1.5.dp,
-                                color = GoldAccent
-                            )
-                        } else {
-                            Icon(
-                                imageVector = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                                contentDescription = if (isPlaying) "Pause" else "Play",
-                                tint = if (isCurrentSurah) Color.White else MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
-                    }
-                }
             }
         }
     }
