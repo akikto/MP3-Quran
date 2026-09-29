@@ -1,4 +1,4 @@
-"""Serve the built Android APK without repackaging it as a ZIP archive."""
+"""Serve built Android downloads without repackaging their file types."""
 
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -7,7 +7,9 @@ import shutil
 
 
 APK = Path(__file__).resolve().parents[1] / "app/build/outputs/apk/debug/app-debug.apk"
+AAB = Path(__file__).resolve().parents[1] / "app/build/outputs/bundle/release/app-release.aab"
 DOWNLOAD_PATH = "/MP3-Quran-Preview-Speed-Fix.apk"
+AAB_DOWNLOAD_PATH = "/MP3-Quran-Release.aab"
 PREVIOUS_DOWNLOAD_PATHS = (
     "/MP3-Quran-Preview-Playback-Fix.apk",
     "/MP3-Quran-Preview-Layout-Fix.apk",
@@ -28,6 +30,8 @@ a { display:inline-block; background:#d4af37; color:#071a14; font-weight:700;
 <h1>MP3 Quran Preview</h1>
 <p>APK ফাইলটি সরাসরি ডাউনলোড করুন। পুরোনো MP3 Quran অ্যাপটি আনইনস্টল করতে হবে না।</p>
 <a href="/MP3-Quran-Preview-Speed-Fix.apk" download="MP3-Quran-Preview-Speed-Fix.apk">APK ডাউনলোড করুন</a>
+<p>Play Console-এ আপলোডের জন্য signed release AAB। এটি ফোনে ইনস্টল করার ফাইল নয়।</p>
+<a href="/MP3-Quran-Release.aab" download="MP3-Quran-Release.aab">Release AAB ডাউনলোড করুন</a>
 </html>"""
 
 
@@ -67,6 +71,22 @@ class Handler(BaseHTTPRequestHandler):
             if send_body:
                 with APK.open("rb") as apk:
                     shutil.copyfileobj(apk, self.wfile)
+        elif self.path == AAB_DOWNLOAD_PATH:
+            if not AAB.is_file():
+                self.send_error(503, "Release AAB has not been built yet")
+                return
+            self.send_response(200)
+            self.send_header("Content-Type", "application/octet-stream")
+            self.send_header(
+                "Content-Disposition",
+                'attachment; filename="MP3-Quran-Release.aab"'
+            )
+            self.send_header("Content-Length", str(AAB.stat().st_size))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            if send_body:
+                with AAB.open("rb") as bundle:
+                    shutil.copyfileobj(bundle, self.wfile)
         else:
             self.send_error(404)
 
