@@ -1,3 +1,4 @@
 - [Historical Room schemas](historical-room-schemas.md) — no authoritative pre-v3 schema snapshot was available; unsupported versions must fail without deleting user data.
 - [APK delivery confirmation](apk-delivery-confirmation.md) — direct APK download was confirmed; do not treat that as approval of the unresolved homepage appearance.
 - [Android picker instrumentation](android-picker-tests.md) — destructive restore checks require a disposable emulator; avoid self-clearing the instrumented package.
+- [GitHub connector sync](github-connector-sync.md) — API authorization does not fix Git CLI credentials; compare Git trees when syncing through the connector.
