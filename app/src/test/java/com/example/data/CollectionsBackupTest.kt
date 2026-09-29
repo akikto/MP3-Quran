@@ -2,11 +2,14 @@ package com.example.data
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.test.core.app.ApplicationProvider
 import com.example.data.entity.BookmarkedAyahEntity
 import com.example.data.entity.FavoriteSurahEntity
 import com.example.data.entity.PlaylistEntity
 import com.example.data.entity.PlaylistItemEntity
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -26,7 +29,49 @@ class CollectionsBackupTest {
     private fun database(): AppDatabase = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
         .build().also { databases.add(it) }
 
+    private fun freshDatabase(vararg callbacks: RoomDatabase.Callback): AppDatabase =
+        Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+            .apply { callbacks.forEach { addCallback(it) } }
+            .addCallback(AppDatabase.STARTER_COLLECTIONS_CALLBACK)
+            .build().also { databases.add(it) }
+
     @After fun close() = databases.forEach { it.close() }
+
+    @Test fun freshDatabaseSeedsBeforeImmediateImport() = runBlocking {
+        val db = freshDatabase()
+        val json = """{"version":1,"favorites":[{"surahNumber":18,"addedAt":123},{"surahNumber":42,"addedAt":456}],"bookmarks":[{"surahNumber":18,"ayahNumber":10,"note":"Saved","timestampMs":50,"bookmarkedAt":789}],"playlists":[{"name":"Personal","description":"Restored","createdAt":123,"items":[18,67]}]}"""
+        CollectionsBackup(db).import(ByteArrayInputStream(json.toByteArray()))
+        val dao = db.quranDao()
+        assertEquals(4, dao.snapshotFavorites().count { it.surahNumber in listOf(1, 18, 55, 67) })
+        assertEquals(1, dao.snapshotFavorites().count { it.surahNumber == 18 })
+        assertEquals(456L, dao.snapshotFavorites().single { it.surahNumber == 42 }.addedAt)
+        assertEquals(4, dao.snapshotBookmarks().size)
+        assertEquals("Saved", dao.snapshotBookmarks().single { it.surahNumber == 18 }.note)
+        val custom = dao.snapshotCustomPlaylists().single()
+        assertTrue(custom.id > 3)
+        assertEquals(listOf(18, 67), dao.snapshotPlaylistItems(custom.id).map { it.surahNumber })
+        assertEquals(2, dao.snapshotPlaylistItems(1).size)
+        assertEquals(3, dao.getAllPlaylists().first().count { it.isSystemPreset })
+    }
+
+    @Test fun starterInsertsDoNotOverwriteExistingRowsOrAttachItemsToCustomPlaylist() = runBlocking {
+        // Simulate rows already present when the creation callback runs. The production callback
+        // must not replace them, even though it normally runs before anyone can write to Room.
+        val db = freshDatabase(object : RoomDatabase.Callback() {
+            override fun onCreate(db: SupportSQLiteDatabase) {
+                db.execSQL("INSERT INTO playlists VALUES (1, 'Mine', 'Keep', 0, 101)")
+                db.execSQL("INSERT INTO playlist_items VALUES (1, 42, 0)")
+                db.execSQL("INSERT INTO favorites VALUES (18, 222)")
+                db.execSQL("INSERT INTO bookmarked_ayahs VALUES (1, 2, 255, 'My note', 99, 333)")
+            }
+        })
+        val dao = db.quranDao()
+        assertEquals("Mine", dao.snapshotCustomPlaylists().single().name)
+        assertEquals(listOf(42), dao.snapshotPlaylistItems(1).map { it.surahNumber })
+        assertEquals(222L, dao.snapshotFavorites().single { it.surahNumber == 18 }.addedAt)
+        assertEquals("My note", dao.snapshotBookmarks().single { it.ayahNumber == 255 }.note)
+        assertEquals(3, dao.snapshotBookmarks().size)
+    }
 
     @Test fun roundTripPreservesCollectionsAndRepeatedImportDoesNotDuplicate() = runBlocking {
         val source = database()

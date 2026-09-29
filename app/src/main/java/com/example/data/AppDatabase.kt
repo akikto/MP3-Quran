@@ -13,9 +13,6 @@ import com.example.data.entity.FavoriteSurahEntity
 import com.example.data.entity.PlayHistoryEntity
 import com.example.data.entity.PlaylistEntity
 import com.example.data.entity.PlaylistItemEntity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @Database(
     entities = [
@@ -34,6 +31,62 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun quranDao(): QuranDao
 
     companion object {
+        // Room invokes onCreate while opening the new database. Keep seeding on that connection
+        // so no DAO operation (including a restore) can run before the starter rows are committed.
+        internal val STARTER_COLLECTIONS_CALLBACK = object : Callback() {
+            override fun onCreate(db: SupportSQLiteDatabase) {
+                super.onCreate(db)
+                val now = System.currentTimeMillis()
+                val presets = listOf(
+                    Triple(1L, "Friday Sunnah", "Surah Al-Kahf recommended for Friday recitation and listening."),
+                    Triple(2L, "Serenity & Mercy", "Soothing Surahs for inner peace, healing, and contemplation."),
+                    Triple(3L, "Protection & Short Surahs", "Surah Al-Ikhlas, Al-Falaq, An-Nas, and short Juz Amma gems.")
+                )
+                presets.forEach { (id, name, description) ->
+                    db.execSQL(
+                        "INSERT OR IGNORE INTO playlists (id, name, description, isSystemPreset, createdAt) VALUES (?, ?, ?, 1, ?)",
+                        arrayOf<Any>(id, name, description, now)
+                    )
+                }
+                val items = listOf(
+                    1L to listOf(18, 62),
+                    2L to listOf(36, 55, 56, 67),
+                    3L to listOf(1, 108, 109, 110, 111, 112, 113, 114)
+                )
+                items.forEach { (id, surahs) ->
+                    // If a custom row already owns a preset ID, do not add preset items to it.
+                    val isPreset = db.query(
+                        "SELECT isSystemPreset FROM playlists WHERE id = ?", arrayOf(id)
+                    ).use { cursor -> cursor.moveToFirst() && cursor.getInt(0) == 1 }
+                    if (isPreset) surahs.forEachIndexed { index, surah ->
+                        db.execSQL(
+                            "INSERT OR IGNORE INTO playlist_items (playlistId, surahNumber, orderIndex) VALUES (?, ?, ?)",
+                            arrayOf<Any>(id, surah, index)
+                        )
+                    }
+                }
+                listOf(1, 18, 55, 67).forEach { surah ->
+                    db.execSQL(
+                        "INSERT OR IGNORE INTO favorites (surahNumber, addedAt) VALUES (?, ?)",
+                        arrayOf<Any>(surah, now)
+                    )
+                }
+                listOf(
+                    Triple(2, 255, "Ayat al-Kursi (The Greatest Verse)"),
+                    Triple(2, 286, "Last verse of Surah Al-Baqarah"),
+                    Triple(20, 25, "Rabbi-shrah li sadri (Dua for ease and speech)")
+                ).forEach { (surah, ayah, note) ->
+                    db.execSQL(
+                        """INSERT OR IGNORE INTO bookmarked_ayahs
+                            (surahNumber, ayahNumber, note, timestampMs, bookmarkedAt)
+                            SELECT ?, ?, ?, 0, ? WHERE NOT EXISTS
+                            (SELECT 1 FROM bookmarked_ayahs WHERE surahNumber = ? AND ayahNumber = ?)""".trimIndent(),
+                        arrayOf<Any>(surah, ayah, note, now, surah, ayah)
+                    )
+                }
+            }
+        }
+
         // For the version 2 layout with the five existing tables, add ayah bookmarks.
         // Leave favorites, history, playlists, and downloads untouched.
         internal val MIGRATION_2_3 = object : Migration(2, 3) {
@@ -61,96 +114,11 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "quran_audio_database.db"
                 ).addMigrations(MIGRATION_2_3)
-                .addCallback(object : Callback() {
-                    override fun onCreate(db: SupportSQLiteDatabase) {
-                        super.onCreate(db)
-                        // Seed system playlists & initial favorite bookmarks on initial create
-                        CoroutineScope(Dispatchers.IO).launch {
-                            val dao = getInstance(context).quranDao()
-                            seedDefaultPlaylists(dao)
-                            seedDefaultBookmarks(dao)
-                        }
-                    }
-                }).build()
+                .addCallback(STARTER_COLLECTIONS_CALLBACK).build()
                 INSTANCE = instance
                 instance
             }
         }
 
-        private suspend fun seedDefaultBookmarks(dao: QuranDao) {
-            // Seed favorite Surahs: Al-Fatihah, Al-Kahf, Ar-Rahman, Al-Mulk
-            dao.addFavorite(FavoriteSurahEntity(1))
-            dao.addFavorite(FavoriteSurahEntity(18))
-            dao.addFavorite(FavoriteSurahEntity(55))
-            dao.addFavorite(FavoriteSurahEntity(67))
-
-            // Seed famous Ayah bookmarks
-            dao.insertAyahBookmark(
-                BookmarkedAyahEntity(
-                    surahNumber = 2,
-                    ayahNumber = 255,
-                    note = "Ayat al-Kursi (The Greatest Verse)",
-                    timestampMs = 0L
-                )
-            )
-            dao.insertAyahBookmark(
-                BookmarkedAyahEntity(
-                    surahNumber = 2,
-                    ayahNumber = 286,
-                    note = "Last verse of Surah Al-Baqarah",
-                    timestampMs = 0L
-                )
-            )
-            dao.insertAyahBookmark(
-                BookmarkedAyahEntity(
-                    surahNumber = 20,
-                    ayahNumber = 25,
-                    note = "Rabbi-shrah li sadri (Dua for ease and speech)",
-                    timestampMs = 0L
-                )
-            )
-        }
-
-        private suspend fun seedDefaultPlaylists(dao: QuranDao) {
-            // Preset 1: Friday Special
-            val p1Id = dao.insertPlaylist(
-                PlaylistEntity(
-                    id = 1,
-                    name = "Friday Sunnah",
-                    description = "Surah Al-Kahf recommended for Friday recitation and listening.",
-                    isSystemPreset = true
-                )
-            )
-            dao.insertPlaylistItem(PlaylistItemEntity(p1Id, 18, 0)) // Al-Kahf
-            dao.insertPlaylistItem(PlaylistItemEntity(p1Id, 62, 1)) // Al-Jumu'ah
-
-            // Preset 2: Heart of Quran & Mercy
-            val p2Id = dao.insertPlaylist(
-                PlaylistEntity(
-                    id = 2,
-                    name = "Serenity & Mercy",
-                    description = "Soothing Surahs for inner peace, healing, and contemplation.",
-                    isSystemPreset = true
-                )
-            )
-            dao.insertPlaylistItem(PlaylistItemEntity(p2Id, 36, 0)) // Ya-Sin
-            dao.insertPlaylistItem(PlaylistItemEntity(p2Id, 55, 1)) // Ar-Rahman
-            dao.insertPlaylistItem(PlaylistItemEntity(p2Id, 56, 2)) // Al-Waqi'ah
-            dao.insertPlaylistItem(PlaylistItemEntity(p2Id, 67, 3)) // Al-Mulk
-
-            // Preset 3: Protection & Last 10 Surahs
-            val p3Id = dao.insertPlaylist(
-                PlaylistEntity(
-                    id = 3,
-                    name = "Protection & Short Surahs",
-                    description = "Surah Al-Ikhlas, Al-Falaq, An-Nas, and short Juz Amma gems.",
-                    isSystemPreset = true
-                )
-            )
-            val shortSurahs = listOf(1, 108, 109, 110, 111, 112, 113, 114)
-            shortSurahs.forEachIndexed { index, surahNum ->
-                dao.insertPlaylistItem(PlaylistItemEntity(p3Id, surahNum, index))
-            }
-        }
     }
 }
