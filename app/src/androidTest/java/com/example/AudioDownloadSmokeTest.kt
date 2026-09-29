@@ -40,6 +40,31 @@ class AudioDownloadSmokeTest {
     }
 
     @Test
+    fun pausedOnlineStreamResumesFromTheSamePosition() {
+        instrumentation.runOnMainSync {
+            player.localAudioFileResolver = null
+            player.playSurah(surah, reciter, listOf(surah))
+        }
+        await("online playback before pause") {
+            player.playerState.value.status == PlayerStatus.PLAYING &&
+                player.playerState.value.currentPositionMs > 2000
+        }
+        instrumentation.runOnMainSync { player.togglePlayPause() }
+        assertEquals(PlayerStatus.PAUSED, player.playerState.value.status)
+        val pausedAt = player.playerState.value.currentPositionMs
+        Thread.sleep(1200)
+        assertEquals(PlayerStatus.PAUSED, player.playerState.value.status)
+        assertEquals(pausedAt, player.playerState.value.currentPositionMs)
+
+        instrumentation.runOnMainSync { player.togglePlayPause() }
+        await("online playback after resume") {
+            player.playerState.value.status == PlayerStatus.PLAYING &&
+                player.playerState.value.currentPositionMs > pausedAt + 1000
+        }
+        assertEquals(surah.number, player.playerState.value.currentSurah?.number)
+    }
+
+    @Test
     fun streamDownloadAndPlaySavedAudio() {
         val dao = AppDatabase.getInstance(context).quranDao()
         val downloader = QuranAudioDownloader(context, dao)

@@ -82,6 +82,11 @@ class AudioPlayerManager private constructor(private val context: Context) {
     private var mediaPlayer: MediaPlayer? = null
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private var audioFocusRequest: AudioFocusRequest? = null
+    private var hasAudioFocus = false
+    private var resumeOnFocusGain = false
+    private val audioFocusListener = AudioManager.OnAudioFocusChangeListener { change ->
+        handleAudioFocusChange(change)
+    }
 
     private val _playerState = MutableStateFlow(PlayerState())
     val playerState: StateFlow<PlayerState> = _playerState.asStateFlow()
@@ -255,6 +260,7 @@ class AudioPlayerManager private constructor(private val context: Context) {
     }
 
     fun pause() {
+        resumeOnFocusGain = false
         mediaPlayer?.let {
             if (it.isPlaying) {
                 it.pause()
@@ -267,12 +273,36 @@ class AudioPlayerManager private constructor(private val context: Context) {
     }
 
     fun resume() {
-        if (!requestAudioFocus()) return
+        if (!requestAudioFocus()) {
+            _playerState.value = _playerState.value.copy(
+                errorMessage = "Could not gain audio focus. Please try again."
+            )
+            return
+        }
+        resumeOnFocusGain = false
+        val position = _playerState.value.currentPositionMs
+        val duration = _playerState.value.durationMs
+        if (duration > 0 && position >= duration) {
+            _playerState.value.currentSurah?.let {
+                playSurah(it, _playerState.value.currentReciter, currentQueue)
+            }
+            return
+        }
         mediaPlayer?.let {
-            it.start()
-            startProgressTracker()
-            _playerState.value = _playerState.value.copy(status = PlayerStatus.PLAYING)
-            updateNotification()
+            try {
+                it.start()
+                startProgressTracker()
+                _playerState.value = _playerState.value.copy(
+                    status = PlayerStatus.PLAYING,
+                    errorMessage = null
+                )
+                updateNotification()
+            } catch (e: IllegalStateException) {
+                // A paused network stream can become unusable; prepare it again at the saved position.
+                _playerState.value.currentSurah?.let { surah ->
+                    playSurah(surah, _playerState.value.currentReciter, currentQueue, position)
+                }
+            }
         } ?: run {
             _playerState.value.currentSurah?.let {
                 playSurah(it, _playerState.value.currentReciter, currentQueue, _playerState.value.currentPositionMs)
@@ -544,6 +574,7 @@ class AudioPlayerManager private constructor(private val context: Context) {
     }
 
     private fun requestAudioFocus(): Boolean {
+        if (hasAudioFocus) return true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val request = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
                 .setAudioAttributes(
@@ -552,41 +583,52 @@ class AudioPlayerManager private constructor(private val context: Context) {
                         .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                         .build()
                 )
-                .setOnAudioFocusChangeListener { focusChange ->
-                    handleAudioFocusChange(focusChange)
-                }
+                .setOnAudioFocusChangeListener(audioFocusListener)
                 .build()
-            audioFocusRequest = request
-            return audioManager.requestAudioFocus(request) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+            hasAudioFocus = audioManager.requestAudioFocus(request) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+            if (hasAudioFocus) audioFocusRequest = request
         } else {
             @Suppress("DEPRECATION")
-            return audioManager.requestAudioFocus(
-                { focusChange -> handleAudioFocusChange(focusChange) },
+            hasAudioFocus = audioManager.requestAudioFocus(
+                audioFocusListener,
                 AudioManager.STREAM_MUSIC,
                 AudioManager.AUDIOFOCUS_GAIN
             ) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
         }
+        return hasAudioFocus
     }
 
     private fun abandonAudioFocus() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             audioFocusRequest?.let { audioManager.abandonAudioFocusRequest(it) }
+            audioFocusRequest = null
         } else {
             @Suppress("DEPRECATION")
-            audioManager.abandonAudioFocus(null)
+            audioManager.abandonAudioFocus(audioFocusListener)
         }
+        hasAudioFocus = false
+        resumeOnFocusGain = false
     }
 
     private fun handleAudioFocusChange(focusChange: Int) {
         when (focusChange) {
-            AudioManager.AUDIOFOCUS_LOSS -> pause()
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> pause()
+            AudioManager.AUDIOFOCUS_LOSS -> {
+                hasAudioFocus = false
+                pause()
+            }
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                val wasPlaying = _playerState.value.status == PlayerStatus.PLAYING
+                hasAudioFocus = false
+                pause()
+                resumeOnFocusGain = wasPlaying
+            }
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
                 mediaPlayer?.setVolume(0.2f, 0.2f)
             }
             AudioManager.AUDIOFOCUS_GAIN -> {
+                hasAudioFocus = true
                 mediaPlayer?.setVolume(1.0f, 1.0f)
-                if (_playerState.value.status == PlayerStatus.PAUSED) {
+                if (resumeOnFocusGain && _playerState.value.status == PlayerStatus.PAUSED) {
                     resume()
                 }
             }
