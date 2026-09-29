@@ -28,3 +28,17 @@ mtime_ms = 1790658113062
 storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:6b572d62-f8a5-444e-91c5-6f7a8897776e/06177bf0-06b8-49b1-aec0-2e31d4367748/3224c7c7-578c-4469-ba4f-1b3bb77f147d"
 storage_version_token = "1790658827880031"
 content_type = "application/octet-stream"
+
+[[outputs]]
+id = "fGFSGo6ys_cIYrgdCImjo"
+uri = "file://app/build/outputs/apk/debug/MP3-Quran-Preview.apk"
+type = "unspecified"
+title = "MP3-Quran-Preview.apk"
+description = "Android ইনস্টলেশন ফাইল (১৯ MB)। ডাউনলোড করে .apk ফাইলটি সরাসরি খুলুন; Extract/Unzip করবেন না।"
+logical_id = "78433194-17df-4b75-b459-8e9b6c58feb4"
+content_hash = "sha256:24ef81f27f7fde78a4a126c9fae77de8d12a7e15ce58cc1c0ae128615b932680"
+size = 19569032
+mtime_ms = 1790658981434
+storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:6b572d62-f8a5-444e-91c5-6f7a8897776e/78433194-17df-4b75-b459-8e9b6c58feb4/904a8cf5-c279-43a1-8f9d-90ccb117a839"
+storage_version_token = "1790658991341787"
+content_type = "application/octet-stream"
