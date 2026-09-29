@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.data.dao.QuranDao
 import com.example.data.entity.BookmarkedAyahEntity
@@ -26,13 +27,30 @@ import kotlinx.coroutines.launch
         BookmarkedAyahEntity::class
     ],
     version = 3,
-    exportSchema = false
+    exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun quranDao(): QuranDao
 
     companion object {
+        // For the version 2 layout with the five existing tables, add ayah bookmarks.
+        // Leave favorites, history, playlists, and downloads untouched.
+        internal val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """CREATE TABLE IF NOT EXISTS `bookmarked_ayahs` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `surahNumber` INTEGER NOT NULL,
+                        `ayahNumber` INTEGER NOT NULL,
+                        `note` TEXT NOT NULL,
+                        `timestampMs` INTEGER NOT NULL,
+                        `bookmarkedAt` INTEGER NOT NULL
+                    )""".trimIndent()
+                )
+            }
+        }
+
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
@@ -42,7 +60,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "quran_audio_database.db"
-                ).fallbackToDestructiveMigration()
+                ).addMigrations(MIGRATION_2_3)
                 .addCallback(object : Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)

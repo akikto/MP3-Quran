@@ -1,0 +1,1 @@
+- [Historical Room schemas](historical-room-schemas.md) — no authoritative pre-v3 schema snapshot was available; unsupported versions must fail without deleting user data.
