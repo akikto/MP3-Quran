@@ -3,7 +3,13 @@ name: GitHub connector sync
 description: Why repository-scoped SSH Git pushes replace connector API snapshot syncs
 ---
 
-Prefer a repository-scoped, writable SSH deploy key for Git pushes over the connector's Git Data API. Keep the private key outside the tracked repository and never expose it to the agent context. The connector can authorize registering the *public* deploy key without revealing its own token. Its Git Data API remains a fallback for file snapshots only: API-created sync commits transfer current files but do not preserve local commit history.
+Prefer a repository-scoped, writable SSH deploy key for Git pushes over the connector's Git Data API. Keep the private key outside the tracked repository and never expose it to the agent context. The connector can authorize registering the *public* deploy key without revealing its own token, subject to the workflow-file restriction below. Its Git Data API remains a fallback for file snapshots only: API-created sync commits transfer current files but do not preserve local commit history.
+
+When pushing commits that change GitHub Actions workflow files, do not register the deploy key through an OAuth app that lacks the `workflow` scope. GitHub attributes that key to the app and rejects the push even if the key has write access. Register the public key directly in the repository's Deploy keys settings instead.
+
+**Why:** A normal SSH push carrying a workflow change was rejected with “refusing to allow an OAuth App to create or update workflow ... without `workflow` scope” after the deploy key was created through the GitHub connector. The connector's offered scopes did not include `workflow`.
+
+**How to apply:** Use the connector to inspect permissions if needed, but for workflow-changing pushes have the repository owner add the public key via GitHub's settings with write access. Keep the private key outside the repository and verify the resulting push preserves commit and tree hashes.
 
 For a read-only check of live Git history, fetch into a separate temporary repository rather than the active checkout. A source-only fetch refspec can still apply `remote.origin.fetch` and move a local tracking ref; using a temporary object directory alone can leave that ref pointing at deleted objects.
 
