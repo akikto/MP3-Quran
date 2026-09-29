@@ -10,7 +10,7 @@ The workspace uses JDK 21 and an Android SDK at `.local/android-sdk/` (ignored b
 ANDROID_HOME="$PWD/.local/android-sdk" bash gradlew :app:assembleDebug --console=plain
 ```
 
-The resulting APK is `app/build/outputs/apk/debug/app-debug.apk`. Android's default debug keystore is created automatically; no release signing credentials are needed for this build. The Gradle wrapper downloads the project's Gradle version and dependencies on first use.
+The resulting APK is `app/build/outputs/apk/debug/app-debug.apk`. It installs as **MP3 Quran Preview**, separately from the original `MP3 Quran` app. This is deliberate: the bundled `MP3-Quran.apk` and the debug APK have different signing certificates, so the debug build cannot update the original install without its original signing key. Keep the original installed if it contains saved data; the preview starts with its own empty local data. Android's default debug keystore is created automatically; no release signing credentials are needed for this build. The Gradle wrapper downloads the project's Gradle version and dependencies on first use.
 
 ## Android playback smoke test
 
@@ -22,7 +22,7 @@ To repeat on a connected Android device or emulator:
 ANDROID_HOME="$PWD/.local/android-sdk" bash gradlew :app:assembleDebug :app:assembleDebugAndroidTest --console=plain
 .local/android-sdk/platform-tools/adb install -r app/build/outputs/apk/debug/app-debug.apk
 .local/android-sdk/platform-tools/adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
-.local/android-sdk/platform-tools/adb shell am instrument -w -r -e class com.example.AudioDownloadSmokeTest com.aistudio.audioquran.mpquran.test/androidx.test.runner.AndroidJUnitRunner
+.local/android-sdk/platform-tools/adb shell am instrument -w -r -e class com.example.AudioDownloadSmokeTest com.aistudio.audioquran.mpquran.preview.test/androidx.test.runner.AndroidJUnitRunner
 ```
 
 The test needs internet access to download the live MP3 and deletes its test download afterward. If Android rejects instrumentation because signatures differ, rebuild and reinstall **both** APKs with the same debug signing key (uninstall a previously signed app first if necessary).
