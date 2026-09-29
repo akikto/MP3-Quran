@@ -12,6 +12,8 @@ ANDROID_HOME="$PWD/.local/android-sdk" bash gradlew :app:assembleDebug --console
 
 The resulting APK is `app/build/outputs/apk/debug/app-debug.apk`. It installs as **MP3 Quran Preview**, separately from the original `MP3 Quran` app. This is deliberate: the bundled `MP3-Quran.apk` and the debug APK have different signing certificates, so the debug build cannot update the original install without its original signing key. Keep the original installed if it contains saved data; the preview starts with its own empty local data. Android's default debug keystore is created automatically; no release signing credentials are needed for this build. The Gradle wrapper downloads the project's Gradle version and dependencies on first use.
 
+The `Download Preview APK` workflow serves the built file directly at `/MP3-Quran-Preview.apk` with the Android APK content type and filename. Use that link to download onto a phone; the workspace asset card repackages unknown binary file types as `.zip`, which cannot be installed directly.
+
 ## Android playback smoke test
 
 On September 29, 2026, the debug APK was installed on an Android 9 (API 28) x86_64 emulator. The device test streamed Surah 112 from the default reciter, downloaded its MP3, checked the saved file and database entry, then played it from the saved file while its network URL was deliberately unreachable. All three checks passed; no playback or download runtime issue was observed on that emulator. This does not replace testing on a physical device or newer Android versions.
