@@ -7,8 +7,12 @@ import shutil
 
 
 APK = Path(__file__).resolve().parents[1] / "app/build/outputs/apk/debug/app-debug.apk"
-DOWNLOAD_PATH = "/MP3-Quran-Preview-Playback-Fix.apk"
-PREVIOUS_DOWNLOAD_PATHS = ("/MP3-Quran-Preview-Layout-Fix.apk", "/MP3-Quran-Preview.apk")
+DOWNLOAD_PATH = "/MP3-Quran-Preview-Speed-Fix.apk"
+PREVIOUS_DOWNLOAD_PATHS = (
+    "/MP3-Quran-Preview-Playback-Fix.apk",
+    "/MP3-Quran-Preview-Layout-Fix.apk",
+    "/MP3-Quran-Preview.apk",
+)
 PAGE = """<!doctype html>
 <html lang="bn">
 <meta charset="utf-8">
@@ -23,7 +27,7 @@ a { display:inline-block; background:#d4af37; color:#071a14; font-weight:700;
 </style>
 <h1>MP3 Quran Preview</h1>
 <p>APK ফাইলটি সরাসরি ডাউনলোড করুন। পুরোনো MP3 Quran অ্যাপটি আনইনস্টল করতে হবে না।</p>
-<a href="/MP3-Quran-Preview-Playback-Fix.apk" download="MP3-Quran-Preview-Playback-Fix.apk">APK ডাউনলোড করুন</a>
+<a href="/MP3-Quran-Preview-Speed-Fix.apk" download="MP3-Quran-Preview-Speed-Fix.apk">APK ডাউনলোড করুন</a>
 </html>"""
 
 
