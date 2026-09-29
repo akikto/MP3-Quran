@@ -29,6 +29,22 @@ ANDROID_HOME="$PWD/.local/android-sdk" bash gradlew :app:assembleDebug :app:asse
 
 The test needs internet access to download the live MP3 and deletes its test download afterward. If Android rejects instrumentation because signatures differ, rebuild and reinstall **both** APKs with the same debug signing key (uninstall a previously signed app first if necessary).
 
+
+## Collections file-picker restore check
+
+The instrumented `CollectionsDocumentPickerTest` drives Android's real Downloads document provider from the Playlists screen. It saves a JSON document, clears Room tables to simulate an empty installation, imports the document through the picker, and checks the restored favorite Surah, ayah bookmark, playlist description, and item order in the database and UI. It also checks picker cancellation and importing an empty/unreadable JSON file. **Run only on a disposable emulator**: the restore test deletes the preview app's local database content. It cannot call `pm clear` from within instrumentation because that kills the test process.
+
+```sh
+ANDROID_HOME="$PWD/.local/android-sdk" bash gradlew :app:assembleDebug :app:assembleDebugAndroidTest --console=plain
+.local/android-sdk/platform-tools/adb install -r app/build/outputs/apk/debug/app-debug.apk
+.local/android-sdk/platform-tools/adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+.local/android-sdk/platform-tools/adb shell am instrument -w -r -e class com.example.CollectionsDocumentPickerTest com.aistudio.audioquran.mpquran.preview.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+For a separate **full app-data reset** check, first create a favorite Surah, an ayah bookmark, and a custom playlist with a description and multiple Surahs in the preview app. Tap Playlists → Export saved and save the file in Downloads. Run `.local/android-sdk/platform-tools/adb shell pm clear com.aistudio.audioquran.mpquran.preview` (this deletes all local preview app data), reopen the app, tap Playlists → Import saved, select the file from Downloads, and check Saved and Playlists for those items and their order. Also try Back from the picker and selecting an empty `.json` document: cancellation should leave collections unchanged, while an unreadable file should show “Import failed” without importing anything. Built-in starter collections may appear on first launch and are not part of the exported personal backup.
+
+On September 29, 2026, the full `pm clear` procedure was also run on an Android 9 emulator: the previously exported Downloads JSON was selected through the system picker after clearing the preview app, and its favorite Surah, ayah bookmark, playlist name, description, and item order were verified in the restored database. The three repeatable picker instrumentation tests passed on the same emulator.
+
 If the ignored SDK directory is missing in a fresh environment, install the Android command-line tools and use `sdkmanager` to install `platforms;android-36.1` and `build-tools;36.1.0`, accepting the Android SDK licenses first. Then run the command above.
 
 ## External configuration
