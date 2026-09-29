@@ -4,3 +4,7 @@ packages = ["jdk21", "xorg.libX11", "xorg.libxcb", "libGL", "libpulseaudio", "li
 
 [agent]
 expertMode = true
+
+[postMerge]
+path = "scripts/post-merge.sh"
+timeoutMs = 600000
