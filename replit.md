@@ -47,9 +47,24 @@ On September 29, 2026, the full `pm clear` procedure was also run on an Android 
 
 If the ignored SDK directory is missing in a fresh environment, install the Android command-line tools and use `sdkmanager` to install `platforms;android-36.1` and `build-tools;36.1.0`, accepting the Android SDK licenses first. Then run the command above.
 
+## Play Store release bundle
+
+For a **new** Play Console listing, use `com.aistudio.audioquran.mpquran` as the application ID. The existing debug APK uses a different `.preview` ID and debug signing key; do not upload it to Play. Version code 1 is suitable for the first release; increment it before every subsequent release.
+
+Save a strong password as the `STORE_PASSWORD` Replit Secret. Generate the upload key once, then build the signed release Android App Bundle:
+
+```sh
+bash scripts/create-upload-key.sh
+ANDROID_HOME="$PWD/.local/android-sdk" bash gradlew :app:bundleRelease --no-daemon --console=plain
+```
+
+The bundle is at `app/build/outputs/bundle/release/app-release.aab`. The upload key is `.local/signing/mp3-quran-upload.p12`, ignored by Git, with alias `upload`. **Back up the key file outside this workspace and its password in a separate secure place.** Do not commit or share either one. This key identifies future uploads; Google Play App Signing handles the key used to sign the APKs delivered to users. If this workspace is reset without a backup, a new key will require a Play Console upload-key reset before updates can be submitted. If using an existing upload key instead, set `KEYSTORE_PATH`, `STORE_PASSWORD`, and (only if different) `KEY_PASSWORD` as environment settings/secrets; it must contain the `upload` alias.
+
+Before uploading, complete the Play Console store listing, privacy policy, Data safety and app-content declarations, and confirm distribution rights for the recitation streams provided by mp3quran.net. The app declares a `mediaPlayback` foreground service for background audio, which requires a matching Play Console declaration and demonstration video. Upload the release AAB to a testing track first. If the developer account is a new personal account, Google Play currently requires at least 12 closed testers opted in continuously for 14 days before applying for production access.
+
 ## External configuration
 
-The sample `.env.example` mentions a Gemini API key, but the setting is commented out and the debug build succeeds without it. Do not put real keys in tracked files. Google Services also reports that `google-services.json` is absent; the debug build succeeds without it, but any feature that requires a configured Firebase project needs its own configuration. Release builds additionally require the signing keystore and `KEYSTORE_PATH`, `STORE_PASSWORD`, and `KEY_PASSWORD` environment variables.
+The sample `.env.example` mentions a Gemini API key, but the setting is commented out and the debug build succeeds without it. Do not put real keys in tracked files. Firebase is not currently configured or used; enabling it later requires real, variant-appropriate project configuration. Release builds require the upload keystore and `STORE_PASSWORD` Replit Secret. `KEYSTORE_PATH` is optional when using the default key path above; `KEY_PASSWORD` is optional when it matches `STORE_PASSWORD`.
 
 ## GitHub pushes
 
