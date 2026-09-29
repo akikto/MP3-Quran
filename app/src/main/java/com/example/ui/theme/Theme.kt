@@ -1,7 +1,6 @@
 package com.example.ui.theme
 
 import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -50,7 +49,7 @@ private val LightColorScheme =
 
 @Composable
 fun AudioQuranTheme(
-  darkTheme: Boolean = isSystemInDarkTheme(),
+  darkTheme: Boolean = true,
   dynamicColor: Boolean = false, // Keep branded emerald & gold aesthetic by default
   content: @Composable () -> Unit,
 ) {
@@ -70,7 +69,7 @@ fun AudioQuranTheme(
 // Retain alias for backward compatibility if any preview references it
 @Composable
 fun MyApplicationTheme(
-  darkTheme: Boolean = isSystemInDarkTheme(),
+  darkTheme: Boolean = true,
   dynamicColor: Boolean = false,
   content: @Composable () -> Unit,
 ) {

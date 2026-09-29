@@ -90,20 +90,23 @@ fun SurahCard(
         border = borderStroke,
         elevation = CardDefaults.cardElevation(defaultElevation = if (isCurrentSurah) 3.dp else 1.dp)
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(horizontal = 10.dp, vertical = 8.dp)
         ) {
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+          ) {
             // Star badge
             IslamicStarBadge(
                 number = surah.number,
                 isActive = isCurrentSurah,
-                size = 44.dp
+                size = 38.dp
             )
 
-            Spacer(modifier = Modifier.width(14.dp))
+            Spacer(modifier = Modifier.width(10.dp))
 
             // Surah English Details
             Column(
@@ -140,7 +143,9 @@ fun SurahCard(
                                 GoldAccent
                             },
                             modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp),
-                            fontSize = 10.sp
+                            fontSize = 10.sp,
+                            maxLines = 1,
+                            softWrap = false
                         )
                     }
 
@@ -185,7 +190,7 @@ fun SurahCard(
             // Arabic Name & Audio Wave
             Column(
                 horizontalAlignment = Alignment.End,
-                modifier = Modifier.padding(end = 6.dp)
+                modifier = Modifier.padding(start = 6.dp)
             ) {
                 Text(
                     text = surah.nameArabic,
@@ -205,9 +210,14 @@ fun SurahCard(
                     )
                 }
             }
+          }
 
             // Action Buttons: Download, Add to playlist, Favorite, Play/Pause
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 // Download button or indicator
                 if (onDownloadClick != null) {
                     IconButton(
