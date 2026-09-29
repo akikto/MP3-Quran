@@ -1,0 +1,16 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "_SC0sEjh-JtEQiYs90khw"
+uri = "file://attached_assets/Screenshot_2026-09-29-07-44-36-91_40deb401b9ffe8e1df2f1cc5ba48_1790652389602.jpg"
+type = "image"
+title = "MP3 Quran হোমপেজের স্ক্রিনশট"
+description = "প্রজেক্টে থাকা Android স্ক্রিনশট; নতুন করে emulator-এ তোলা নয়।"
+logical_id = "d9a54281-574a-4d5f-aaa2-da4f094af26c"
+content_hash = "sha256:ae92685b84a9abf945e984149ff8b9a36e688a5169d612d5ae1314ee89382ddb"
+size = 533707
+mtime_ms = 1790652393294
+storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:6b572d62-f8a5-444e-91c5-6f7a8897776e/d9a54281-574a-4d5f-aaa2-da4f094af26c/a94430b6-50b5-427d-b251-684e895873c4"
+storage_version_token = "1790652581284446"
+content_type = "image/jpeg"
