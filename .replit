@@ -1,6 +1,6 @@
 [nix]
 channel = "stable-25_05"
-packages = ["jdk21"]
+packages = ["jdk21", "xorg.libX11", "xorg.libxcb", "libGL", "libpulseaudio", "libz"]
 
 [agent]
 expertMode = true
