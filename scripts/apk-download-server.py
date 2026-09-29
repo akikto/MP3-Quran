@@ -7,7 +7,8 @@ import shutil
 
 
 APK = Path(__file__).resolve().parents[1] / "app/build/outputs/apk/debug/app-debug.apk"
-DOWNLOAD_PATH = "/MP3-Quran-Preview.apk"
+DOWNLOAD_PATH = "/MP3-Quran-Preview-Layout-Fix.apk"
+PREVIOUS_DOWNLOAD_PATH = "/MP3-Quran-Preview.apk"
 PAGE = """<!doctype html>
 <html lang="bn">
 <meta charset="utf-8">
@@ -22,7 +23,7 @@ a { display:inline-block; background:#d4af37; color:#071a14; font-weight:700;
 </style>
 <h1>MP3 Quran Preview</h1>
 <p>APK ফাইলটি সরাসরি ডাউনলোড করুন। পুরোনো MP3 Quran অ্যাপটি আনইনস্টল করতে হবে না।</p>
-<a href="/MP3-Quran-Preview.apk" download="MP3-Quran-Preview.apk">APK ডাউনলোড করুন</a>
+<a href="/MP3-Quran-Preview-Layout-Fix.apk" download="MP3-Quran-Preview-Layout-Fix.apk">APK ডাউনলোড করুন</a>
 </html>"""
 
 
@@ -46,13 +47,16 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             if send_body:
                 self.wfile.write(body)
-        elif self.path == DOWNLOAD_PATH:
+        elif self.path in (DOWNLOAD_PATH, PREVIOUS_DOWNLOAD_PATH):
             if not APK.is_file():
                 self.send_error(503, "Preview APK has not been built yet")
                 return
             self.send_response(200)
             self.send_header("Content-Type", "application/vnd.android.package-archive")
-            self.send_header("Content-Disposition", 'attachment; filename="MP3-Quran-Preview.apk"')
+            self.send_header(
+                "Content-Disposition",
+                f'attachment; filename="{self.path[1:]}"'
+            )
             self.send_header("Content-Length", str(APK.stat().st_size))
             self.send_header("Cache-Control", "no-store")
             self.end_headers()

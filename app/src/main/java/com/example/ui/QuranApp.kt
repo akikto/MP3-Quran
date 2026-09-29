@@ -42,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -118,6 +119,7 @@ fun QuranApp(
         }
     }
     var currentTab by remember { mutableStateOf(NavigationTab.SURAHS) }
+    val navigationFontSize = (11f * minOf(1f, 1.15f / LocalDensity.current.fontScale)).sp
 
     // Request notification permission on Android 13+
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
@@ -178,7 +180,7 @@ fun QuranApp(
                                 Text(
                                     text = tab.title,
                                     style = MaterialTheme.typography.labelSmall.copy(
-                                        fontSize = 11.sp,
+                                        fontSize = navigationFontSize,
                                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                                     ),
                                     maxLines = 1,

@@ -50,6 +50,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.model.Reciter
@@ -129,11 +130,6 @@ fun SurahListScreen(
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
                             )
-                            Text(
-                                text = "114 Surahs • High Quality Audio",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = GoldLight
-                            )
                         }
                     }
 
@@ -207,7 +203,16 @@ fun SurahListScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "114 Surahs • High Quality Audio",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = GoldLight,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(start = 50.dp)
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
 
                 // Bismillah Calligraphy Banner
                 Text(
@@ -225,7 +230,15 @@ fun SurahListScreen(
         OutlinedTextField(
             value = searchQuery,
             onValueChange = onSearchQueryChanged,
-            placeholder = { Text("Search Surah by name or number...", fontSize = 13.sp) },
+            placeholder = {
+                Text(
+                    "Search Surah by name or number...",
+                    fontSize = 13.sp,
+                    maxLines = 1,
+                    softWrap = false,
+                    overflow = TextOverflow.Ellipsis
+                )
+            },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Search,
@@ -256,7 +269,8 @@ fun SurahListScreen(
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 6.dp)
+                .padding(horizontal = 14.dp, vertical = 4.dp)
+                .height(52.dp)
                 .testTag("surah_search_input")
         )
 
