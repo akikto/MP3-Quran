@@ -1,1 +1,2 @@
 - [Historical Room schemas](historical-room-schemas.md) — no authoritative pre-v3 schema snapshot was available; unsupported versions must fail without deleting user data.
+- [APK delivery confirmation](apk-delivery-confirmation.md) — direct APK download was confirmed; do not treat that as approval of the unresolved homepage appearance.
