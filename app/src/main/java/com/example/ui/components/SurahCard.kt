@@ -80,19 +80,19 @@ fun SurahCard(
     val borderStroke = if (isCurrentSurah) {
         BorderStroke(1.2.dp, GoldAccent)
     } else {
-        BorderStroke(0.6.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+        BorderStroke(0.6.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f))
     }
 
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
+            .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onCardClick)
             .testTag("surah_card_${surah.number}"),
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = containerColor),
         border = borderStroke,
-        elevation = CardDefaults.cardElevation(defaultElevation = if (isCurrentSurah) 3.dp else 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = if (isCurrentSurah) 2.dp else 0.5.dp)
     ) {
         Column(
             modifier = Modifier
@@ -118,21 +118,22 @@ fun SurahCard(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
                     Text(
                         text = surah.nameEnglish,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
                         color = if (isCurrentSurah) GoldAccent else MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.weight(1f),
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        fontSize = 14.sp
                     )
 
                     // Revelation tag badge
                     if (!enlargedText) Surface(
-                        shape = RoundedCornerShape(4.dp),
+                        shape = RoundedCornerShape(3.dp),
                         color = if (surah.revelationType == Surah.RevelationType.MECCAN) {
                             MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
                         } else {
@@ -147,8 +148,8 @@ fun SurahCard(
                             } else {
                                 GoldAccent
                             },
-                            modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp),
-                            fontSize = 10.sp,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp),
+                            fontSize = 9.sp,
                             maxLines = 1,
                             softWrap = false
                         )
@@ -157,7 +158,7 @@ fun SurahCard(
                     // Downloaded offline badge
                     if (isDownloaded && !compactScreen && !enlargedText) {
                         Surface(
-                            shape = RoundedCornerShape(4.dp),
+                            shape = RoundedCornerShape(3.dp),
                             color = EmeraldPrimary.copy(alpha = 0.15f)
                         ) {
                             Row(
@@ -168,14 +169,14 @@ fun SurahCard(
                                     imageVector = Icons.Default.OfflinePin,
                                     contentDescription = "Downloaded",
                                     tint = EmeraldPrimary,
-                                    modifier = Modifier.size(10.dp)
+                                    modifier = Modifier.size(9.dp)
                                 )
                                 Spacer(modifier = Modifier.width(2.dp))
                                 Text(
                                     text = "OFFLINE",
                                     style = MaterialTheme.typography.labelSmall,
                                     color = EmeraldPrimary,
-                                    fontSize = 9.sp,
+                                    fontSize = 8.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                             }
@@ -240,68 +241,71 @@ fun SurahCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    fontSize = 11.sp
                 )
                 // Download button or indicator
                 if (onDownloadClick != null) {
                     IconButton(
                         onClick = onDownloadClick,
                         modifier = Modifier
-                            .size(30.dp)
+                            .size(28.dp)
                             .testTag("download_surah_${surah.number}")
                     ) {
                         if (isDownloading) {
                             CircularProgressIndicator(
                                 progress = { (downloadProgress ?: 0) / 100f },
-                                modifier = Modifier.size(18.dp),
-                                strokeWidth = 2.dp,
+                                modifier = Modifier.size(14.dp),
+                                strokeWidth = 1.5.dp,
                                 color = GoldAccent
                             )
                         } else if (isDownloaded) {
                             Icon(
                                 imageVector = Icons.Default.CheckCircle,
-                                contentDescription = "Downloaded for offline listening",
+                                contentDescription = "Downloaded",
                                 tint = EmeraldPrimary,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(17.dp)
                             )
                         } else {
                             Icon(
                                 imageVector = Icons.Outlined.FileDownload,
-                                contentDescription = "Download for offline listening",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(20.dp)
+                                contentDescription = "Download",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                modifier = Modifier.size(17.dp)
                             )
                         }
                     }
                 }
 
+                // Add to Playlist button
                 if (onAddToPlaylistClick != null) {
                     IconButton(
                         onClick = onAddToPlaylistClick,
                         modifier = Modifier
-                            .size(30.dp)
+                            .size(28.dp)
                             .testTag("add_to_playlist_${surah.number}")
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.PlaylistAdd,
                             contentDescription = "Add to playlist",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(20.dp)
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            modifier = Modifier.size(17.dp)
                         )
                     }
                 }
 
+                // Bookmark button
                 IconButton(
                     onClick = onFavoriteToggle,
                     modifier = Modifier
-                        .size(30.dp)
+                        .size(28.dp)
                         .testTag("bookmark_surah_${surah.number}")
                 ) {
                     Icon(
                         imageVector = if (isFavorite) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
                         contentDescription = if (isFavorite) "Bookmarked" else "Bookmark",
-                        tint = if (isFavorite) GoldAccent else MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(20.dp)
+                        tint = if (isFavorite) GoldAccent else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        modifier = Modifier.size(17.dp)
                     )
                 }
 
