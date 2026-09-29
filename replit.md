@@ -58,3 +58,33 @@ The sample `.env.example` mentions a Gemini API key, but the setting is commente
 Before pushing, `git fetch origin` and confirm `git merge-base --is-ancestor origin/main main` succeeds. If it does not, reconcile the branches before pushing; never force-push. After pushing, compare `git rev-parse main` with `git ls-remote git@github.com:akikto/MP3-Quran.git refs/heads/main`, and `git rev-parse main^{tree}` with `git rev-parse origin/main^{tree}` (fetch again if needed). Matching commits also prove matching history; matching trees prove matching tracked files.
 
 The key and Git configuration are local to this workspace, not tracked in the repository. If this workspace is recreated, generate a new SSH key outside the repository, register **only its public key** as a writable repository deploy key, verify GitHub's SSH host fingerprint, and configure `remote.origin.pushurl` and `core.sshCommand` again. Remove the old deploy key from GitHub when it is no longer needed.
+
+### Recovering GitHub push access after a workspace reset
+
+Assume the old private key and local Git settings are gone; do not copy a private key into the repository or chat. Create a replacement outside the repository:
+
+```sh
+install -d -m 700 /home/runner/.ssh
+umask 077
+ssh-keygen -t ed25519 -N '' -C 'MP3-Quran Replit deploy key' -f /home/runner/.ssh/mp3-quran-deploy
+chmod 600 /home/runner/.ssh/mp3-quran-deploy
+```
+
+In GitHub, open **akikto/MP3-Quran → Settings → Deploy keys → Add deploy key**. Paste only the output of `cat /home/runner/.ssh/mp3-quran-deploy.pub`, enable **Allow write access**, and save. Keep the old deploy key until a push with the replacement has succeeded.
+
+Pin GitHub's published Ed25519 host key and confirm its fingerprint before using SSH:
+
+```sh
+printf '%s\n' 'github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl' > /home/runner/.ssh/known_hosts
+chmod 600 /home/runner/.ssh/known_hosts
+ssh-keygen -lf /home/runner/.ssh/known_hosts -E sha256
+```
+
+The fingerprint must be `SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU`. Configure push-only SSH while keeping HTTPS fetch:
+
+```sh
+git config --local remote.origin.pushurl 'git@github.com:akikto/MP3-Quran.git'
+git config --local core.sshCommand 'ssh -i /home/runner/.ssh/mp3-quran-deploy -o IdentitiesOnly=yes -o UserKnownHostsFile=/home/runner/.ssh/known_hosts -o StrictHostKeyChecking=yes'
+```
+
+Fetch before pushing. If `git merge-base --is-ancestor origin/main main` fails, reconcile the histories first and never force-push. After a normal `git push origin main`, confirm the remote commit and tree match local `main`; only then delete the obsolete deploy key in the repository's **Settings → Deploy keys**.
