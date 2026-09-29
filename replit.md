@@ -50,3 +50,11 @@ If the ignored SDK directory is missing in a fresh environment, install the Andr
 ## External configuration
 
 The sample `.env.example` mentions a Gemini API key, but the setting is commented out and the debug build succeeds without it. Do not put real keys in tracked files. Google Services also reports that `google-services.json` is absent; the debug build succeeds without it, but any feature that requires a configured Firebase project needs its own configuration. Release builds additionally require the signing keystore and `KEYSTORE_PATH`, `STORE_PASSWORD`, and `KEY_PASSWORD` environment variables.
+
+## GitHub pushes
+
+`origin` fetches over HTTPS and pushes over SSH using a write-enabled **deploy key scoped to this repository**. The private key is outside the repository at `/home/runner/.ssh/mp3-quran-deploy`; Git's local `core.sshCommand` selects it and requires a verified GitHub host key. Never copy the private key into Git, logs, or a chat message. The GitHub connector's REST API can sync file snapshots, but does **not** upload the actual local Git commits; use `git push origin main` instead.
+
+Before pushing, `git fetch origin` and confirm `git merge-base --is-ancestor origin/main main` succeeds. If it does not, reconcile the branches before pushing; never force-push. After pushing, compare `git rev-parse main` with `git ls-remote git@github.com:akikto/MP3-Quran.git refs/heads/main`, and `git rev-parse main^{tree}` with `git rev-parse origin/main^{tree}` (fetch again if needed). Matching commits also prove matching history; matching trees prove matching tracked files.
+
+The key and Git configuration are local to this workspace, not tracked in the repository. If this workspace is recreated, generate a new SSH key outside the repository, register **only its public key** as a writable repository deploy key, verify GitHub's SSH host fingerprint, and configure `remote.origin.pushurl` and `core.sshCommand` again. Remove the old deploy key from GitHub when it is no longer needed.
